@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <button id="play-button">Start</button>
+        <button id="pause-button" disabled>Pause</button>
+        <button id="stop-button" disabled>Stop</button>
+    </div>
+
+    <script type="module">
+//-----------------------------------------------------------------------------
+const SELECTORS = {
+    playButton: '#play-button',
+    pauseButton: '#pause-button',
+    stopButton: '#stop-button'
+};
+
+function checkLocalStorageForPortNameAssociatedWithRelationship(relationshipName) {
+    const portName = localStorage.getItem(relationshipName);
+    return portName || null;
+}
+
+function tryToConnectToPortFromName(midiMap, portName) {
+    const foundPort = Array.from(midiMap.values()).find(port => port.name === portName);
+    return foundPort || null;
+}
+
+function choosePort(getPortFunction, relationshipName) {
+    return new Promise((resolve, reject) => {
+        const dialog = document.createElement('dialog');
+        const form = document.createElement('form');
+        const labelSelectDiv = document.createElement('div');
+        const label = document.createElement('label');
+        const select = document.createElement('select');
+        const buttonDiv = document.createElement('div');
+        const refreshButton = document.createElement('button');
+        const submitButton = document.createElement('button');
+        const cancelButton = document.createElement('button');
+        
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const selectedPortName = select.value;
+            const port = tryToConnectToPortFromName(midiMap, selectedPortName);
+        
+            if (!port) {
+                alert('Port not found');
+                return;
+            }
+        
+            dialog.close();
+            
+            resolve(port);
+        });
+
+        
+        
+        submitButton.textContent = 'Select';
+        form.appendChild(select);
+        form.appendChild(submitButton);
+        dialog.appendChild(form);
+        document.body.appendChild(dialog);
+        dialog.showModal();
+    });
+}
+
+async function getMidiConnections(connectionsToGet) {
+
+    const midiAccess = await navigator.requestMIDIAccess();
+
+    for (const connection of connectionsToGet) {
+    }
+}
+
+try {
+    const [output] = await getMidiConnections([{
+        name: 'synthesizer',
+        direction: 'outputs'
+    }])
+    
+    output.send([0x90, 60, 100]);
+    output.send([0x80, 60, 100], window.performance.now() + 1000);
+    console.log('Done lol');
+    
+} catch (err) {
+    alert(err.message);
+}
+//-----------------------------------------------------------------------------
+    </script>
+</body>
+
+</html>

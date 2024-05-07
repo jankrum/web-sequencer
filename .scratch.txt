@@ -1,0 +1,19 @@
+Get all midi connections from list of connections
+    - Get Midi Access
+    - Use Midi Access to get individual connections
+        -Make midiMap from Midi Access and direction
+        - Check localStorage if we have a device name associated with a relationship
+            - If we do have an associated name, we try to get that input/output port
+                - The port is found and a connection is established, then we return it
+            - Since we found a name in localStorage, but couldn't find a port with a matching
+                name or could not get that port, then we delete that association from localStorage
+        - If we did not find a relationship-device name association or we did but it was bad,
+            we open an html dialog that the user will use to try to connect to a device
+            - We iterate through the midiMap to get all the port names
+            - If we did not find any port names, we throw an error
+            - We build a form that will ask the user to select a device for
+                a specific relationship with a select and submit button 
+            - The user selects a port name they want to connect to
+            - We store their selection in localStorage under the relationship name
+            - Close the dialog
+            - Return the port they selected
