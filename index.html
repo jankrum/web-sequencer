@@ -32,13 +32,21 @@ function checkLocalStorageForPortNameAssociatedWithRelationship(relationshipName
     return portName || null;
 }
 
+function savePortNameAssociatedWithRelationship(relationshipName, portName) {
+    localStorage.setItem(relationshipName, portName);
+}
+
 function tryToConnectToPortFromName(midiMap, portName) {
     const foundPort = Array.from(midiMap.values()).find(port => port.name === portName);
     return foundPort || null;
 }
 
-function choosePort(getPortFunction, relationshipName) {
-    return new Promise((resolve, reject) => {
+function choosePort(midiMap, relationshipName) {
+    function getPortsFunction() {
+        return Array.from(midiMap.values());
+    }
+
+    return new Promise(async (resolve, reject) => {
         const dialog = document.createElement('dialog');
         const form = document.createElement('form');
         const labelSelectDiv = document.createElement('div');
@@ -49,7 +57,23 @@ function choosePort(getPortFunction, relationshipName) {
         const submitButton = document.createElement('button');
         const cancelButton = document.createElement('button');
         
+        async function populateSelect() {
+            const ports = await getPortsFunction();
+            select.innerHTML = '';
+            for (const port of ports) {
+                const option = document.createElement('option');
+                option.innerText = port.name;
+                select.appendChild(option);
+            }
+        }
+
         form.addEventListener('submit', (event) => {
+            event.preventDefault();
+        });
+
+        refreshButton.addEventListener('mousedown', populateSelect);
+
+        submitButton.addEventListener('mousedown', (event) => {
             event.preventDefault();
             const selectedPortName = select.value;
             const port = tryToConnectToPortFromName(midiMap, selectedPortName);
@@ -58,44 +82,66 @@ function choosePort(getPortFunction, relationshipName) {
                 alert('Port not found');
                 return;
             }
+
+            savePortNameAssociatedWithRelationship(relationshipName, selectedPortName);
         
             dialog.close();
             
             resolve(port);
         });
 
-        
-        
+        cancelButton.addEventListener('mousedown', () => {
+            dialog.close();
+            reject(new Error('User cancelled'));
+        });
+
+        label.textContent = `Choose a device for the ${relationshipName} connection`;
+        refreshButton.textContent = 'Refresh';
         submitButton.textContent = 'Select';
-        form.appendChild(select);
-        form.appendChild(submitButton);
+        cancelButton.textContent = 'Cancel';
+
+        labelSelectDiv.appendChild(label);
+        labelSelectDiv.appendChild(select);
+        buttonDiv.appendChild(refreshButton);
+        buttonDiv.appendChild(submitButton);
+        buttonDiv.appendChild(cancelButton);
+        form.appendChild(labelSelectDiv);
+        form.appendChild(buttonDiv);
         dialog.appendChild(form);
         document.body.appendChild(dialog);
+
+        await populateSelect();
+
         dialog.showModal();
     });
 }
 
 async function getMidiConnections(connectionsToGet) {
-
     const midiAccess = await navigator.requestMIDIAccess();
 
-    for (const connection of connectionsToGet) {
+    const results = [];
+
+    for (const connectionToGet of connectionsToGet) {
+        const { name, direction } = connectionToGet;
+
+        const midiMap = midiAccess[direction];
+
+        const port = await choosePort(midiMap, name);
+
+        results.push(port);
     }
+
+    return results;
 }
 
-try {
-    const [output] = await getMidiConnections([{
-        name: 'synthesizer',
-        direction: 'outputs'
-    }])
-    
-    output.send([0x90, 60, 100]);
-    output.send([0x80, 60, 100], window.performance.now() + 1000);
-    console.log('Done lol');
-    
-} catch (err) {
-    alert(err.message);
-}
+const [output] = await getMidiConnections([{
+    name: 'synthesizer',
+    direction: 'outputs'
+}])
+
+output.send([0x90, 60, 100]);
+output.send([0x80, 60, 100], window.performance.now() + 1000);
+console.log('Done lol');
 //-----------------------------------------------------------------------------
     </script>
 </body>
