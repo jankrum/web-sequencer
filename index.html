@@ -27,118 +27,180 @@ const SELECTORS = {
     stopButton: '#stop-button'
 };
 
+/**
+ * Checks local storage for a port name associated with a relationship.
+ * @param {string} relationshipName 
+ * @returns {string | null} The port name associated with the relationship
+ */
 function checkLocalStorageForPortNameAssociatedWithRelationship(relationshipName) {
     const portName = localStorage.getItem(relationshipName);
     return portName || null;
 }
 
+/**
+ * Saves a port name associated with a relationship in local storage.
+ * @param {string} relationshipName 
+ * @param {string} portName 
+ */
 function savePortNameAssociatedWithRelationship(relationshipName, portName) {
     localStorage.setItem(relationshipName, portName);
 }
 
-function tryToConnectToPortFromName(midiMap, portName) {
-    const foundPort = Array.from(midiMap.values()).find(port => port.name === portName);
-    return foundPort || null;
-}
+/**
+ * Creates a dialog that lets the user choose a port.
+ * @param {Array<MIDIPort>} portArray 
+ * @param {string} relationshipName
+ * @returns {Object} An object containing the dialog and its elements
+ */
+function makeDialog(portArray, relationshipName) {
+    // Create the actual elements
+    const dialog = document.createElement('dialog');
+    const form = document.createElement('form');
+    const labelSelectDiv = document.createElement('div');
+    const labelForSelect = document.createElement('label');
+    const select = document.createElement('select');
+    const buttonDiv = document.createElement('div');
+    const cancelButton = document.createElement('button');
+    const submitButton = document.createElement('button');
+    const labelForCheckbox = document.createElement('label');
+    const rememberCheckbox = document.createElement('input');
 
-function choosePort(midiMap, relationshipName) {
-    function getPortsFunction() {
-        return Array.from(midiMap.values());
+    // Add attributes to the elements
+    labelForSelect.textContent = `Choose a device for the "${relationshipName}" connection:`;
+    cancelButton.textContent = 'Cancel';
+    submitButton.textContent = 'Select';
+    labelForCheckbox.textContent = 'Remember this device:';
+    rememberCheckbox.type = 'checkbox';
+
+    // Add ports to select
+    function addPortNameToSelect(port) {
+        const option = document.createElement('option');
+        option.innerText = port.name;
+        select.appendChild(option);
     }
 
-    return new Promise(async (resolve, reject) => {
-        const dialog = document.createElement('dialog');
-        const form = document.createElement('form');
-        const labelSelectDiv = document.createElement('div');
-        const label = document.createElement('label');
-        const select = document.createElement('select');
-        const buttonDiv = document.createElement('div');
-        const refreshButton = document.createElement('button');
-        const submitButton = document.createElement('button');
-        const cancelButton = document.createElement('button');
-        
-        async function populateSelect() {
-            const ports = await getPortsFunction();
-            select.innerHTML = '';
-            for (const port of ports) {
-                const option = document.createElement('option');
-                option.innerText = port.name;
-                select.appendChild(option);
-            }
-        }
+    portArray.forEach(addPortNameToSelect);
 
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-        });
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+    });
 
-        refreshButton.addEventListener('mousedown', populateSelect);
+    // Structure the elements
+    labelSelectDiv.appendChild(labelForSelect);
+    labelSelectDiv.appendChild(select);
+    buttonDiv.appendChild(cancelButton);
+    buttonDiv.appendChild(submitButton);
+    buttonDiv.appendChild(labelForCheckbox);
+    buttonDiv.appendChild(rememberCheckbox);
+    form.appendChild(labelSelectDiv);
+    form.appendChild(buttonDiv);
+    dialog.appendChild(form);
+    document.body.appendChild(dialog);
 
-        submitButton.addEventListener('mousedown', (event) => {
-            event.preventDefault();
-            const selectedPortName = select.value;
-            const port = tryToConnectToPortFromName(midiMap, selectedPortName);
-        
-            if (!port) {
-                alert('Port not found');
-                return;
-            }
+    // Return the elements we will use later
+    return {
+        dialog,
+        form,
+        select,
+        cancelButton,
+        submitButton,
+        rememberCheckbox
+    };
+}
 
-            savePortNameAssociatedWithRelationship(relationshipName, selectedPortName);
-        
-            dialog.close();
-            
-            resolve(port);
-        });
-
-        cancelButton.addEventListener('mousedown', () => {
-            dialog.close();
-            reject(new Error('User cancelled'));
-        });
-
-        label.textContent = `Choose a device for the ${relationshipName} connection`;
-        refreshButton.textContent = 'Refresh';
-        submitButton.textContent = 'Select';
-        cancelButton.textContent = 'Cancel';
-
-        labelSelectDiv.appendChild(label);
-        labelSelectDiv.appendChild(select);
-        buttonDiv.appendChild(refreshButton);
-        buttonDiv.appendChild(submitButton);
-        buttonDiv.appendChild(cancelButton);
-        form.appendChild(labelSelectDiv);
-        form.appendChild(buttonDiv);
-        dialog.appendChild(form);
-        document.body.appendChild(dialog);
-
-        await populateSelect();
-
-        dialog.showModal();
+/**
+ * Makes the cancel button close the dialog and reject the promise.
+ * @param {Object} dialogElements 
+ * @param {Function} reject 
+ */
+function makeCancelButtonWork({dialog, cancelButton}, reject) {
+    cancelButton.addEventListener('mousedown', () => {
+        dialog.close();
+        reject(new Error('User cancelled'));
     });
 }
 
-async function getMidiConnections(connectionsToGet) {
-    const midiAccess = await navigator.requestMIDIAccess();
+/**
+ * Makes the submit button close the dialog and resolve the promise.
+ * @param {Object} dialogElements 
+ * @param {string} relationshipName 
+ * @param {Function} getPortByName 
+ * @param {Function} resolve 
+ */
+function makeSubmitButtonWork({submitButton, select, rememberCheckbox, dialog}, relationshipName, getPortByName, resolve) {
+    submitButton.addEventListener('mousedown', () => {
+        const selectedPortName = select.value;
+        const port = getPortByName(selectedPortName);
+        
+        if (!port) {
+            alert('Port not found');
+            return;
+        }
 
-    const results = [];
+        if (rememberCheckbox.checked) {
+            savePortNameAssociatedWithRelationship(relationshipName, selectedPortName);
+        }
 
-    for (const connectionToGet of connectionsToGet) {
-        const { name, direction } = connectionToGet;
-
-        const midiMap = midiAccess[direction];
-
-        const port = await choosePort(midiMap, name);
-
-        results.push(port);
-    }
-
-    return results;
+        dialog.close();
+        document.body.removeChild(dialog);
+        resolve(port);
+    });
 }
 
-const [output] = await getMidiConnections([{
-    name: 'synthesizer',
-    direction: 'outputs'
-}])
+/**
+ * Opens a dialog that lets the user choose a port.
+ * @param {Array<MIDIPort>} portArray 
+ * @param {string} relationshipName 
+ * @param {Function} getPortByName 
+ * @returns {Promise<MIDIPort>} The port the user chose
+ */
+function askUserToChoosePort(portArray, relationshipName, getPortByName) {    
+    const dialogElements = makeDialog(portArray, relationshipName);
+    
+    return new Promise(async (resolve, reject) => {
+        makeCancelButtonWork(dialogElements, reject);
+        makeSubmitButtonWork(dialogElements, relationshipName, getPortByName, resolve);
 
+        dialogElements.dialog.showModal();
+    });
+}
+
+/**
+ * Checks local storage for a port name associated with a relationship.
+ * - If it finds one, it tries to connect to that port.
+ * - If it can't, it opens a dialog to let the user choose a port.
+ * @param {MIDIAccess} midiAccessObj 
+ * @param {string} name 
+ * @param {string} direction 
+ * @returns {Promise<MIDIPort>}
+ */
+async function getConnection(midiAccessObj, name, direction) {        
+    const midiMap = midiAccessObj[direction];
+    console.log(midiAccessObj)
+    const portArray = Array.from(midiMap.values());
+
+    function getPortByName(portName) {
+        return portArray.find(port => port.name === portName) || null;
+    }
+    
+    const portNameInStorage = checkLocalStorageForPortNameAssociatedWithRelationship(name);
+
+    if (portNameInStorage) {
+        const portFoundFromStorage = getPortByName(portNameInStorage);
+        if (portFoundFromStorage) {
+            return portFoundFromStorage;
+        }
+    }
+
+    const port = await askUserToChoosePort(portArray, name, getPortByName);
+
+    return port;
+}
+
+
+//--------------------- CODE THAT ACTUALLY IS EXECUTED ------------------------
+const midiAccess = await navigator.requestMIDIAccess({sysex: true});
+const output = await getConnection(midiAccess, 'synthesizer', 'outputs');
 output.send([0x90, 60, 100]);
 output.send([0x80, 60, 100], window.performance.now() + 1000);
 console.log('Done lol');
