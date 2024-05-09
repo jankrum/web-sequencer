@@ -78,6 +78,7 @@ function makeSubmitButtonWork({ submitButton, select, rememberCheckbox, dialog }
         const selectedPortName = select.value;
         const port = getPortByName(selectedPortName);
 
+        // This should hopefully never happen
         if (!port) {
             alert('Port not found');
             return;
@@ -136,6 +137,10 @@ async function getConnectionFromMidiAccessObj(midiAccessObj, relationshipName, d
     // Used to get all of the inputs/outputs and also to get a port by name
     const midiMap = midiAccessObj[direction];
     const portArray = Array.from(midiMap.values());
+
+    if (portArray.length === 0) {
+        throw new Error(`No ${direction} found`);
+    }
 
     /**
      * Gets a port from the portArray by its name.
