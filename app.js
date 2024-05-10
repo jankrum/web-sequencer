@@ -61,8 +61,8 @@ const twinkleTwinkleLittleStarNotes = [
     {start: 42, length: 1, note: 64},
     {start: 43, length: 1, note: 64},
     {start: 44, length: 1, note: 62},
-    {start: 45, length: 1, note: 62},
-    {start: 46, length: 4, note: 60}
+    {start: 45, length: 1, note: 67},
+    {start: 46, length: 8, note: 60}
 ];
 
 function scheduleEvent({ type, note }) {
@@ -84,7 +84,9 @@ function getNextEvent() {
 
 function seeIfWeNeedToSchedule() {
     if (!eventBuffer.length) {
-        stop();
+        playing = false;
+        const millisecondsToLastEvent = nextEventTime - window.performance.now();
+        setTimeout(stop, millisecondsToLastEvent);
     }
 
     const endOfSchedulerWindow = window.performance.now() + schedulerWindowSize;
@@ -103,7 +105,9 @@ function scheduler() {
     }
 }
 
-function load() {
+function play() {
+    playing = true;
+
     while (eventBuffer.length) {
         eventBuffer.shift();
     }
@@ -122,10 +126,6 @@ function load() {
     }
 
     console.log('LOADED');
-}
-
-function play() {
-    playing = true;
 
     startTime = window.performance.now();
     getNextEvent();
@@ -148,26 +148,21 @@ function stop() {
     console.log('STOPPING');
 }
 
-async function main() {
-    output = await getConnection('synthesizer', 'outputs');
+output = await getConnection('synthesizer', 'outputs');
 
-    timerWorker = new Worker('metronome-worker.js');
+timerWorker = new Worker('metronome-worker.js');
 
-    timerWorker.addEventListener('message', function(e) {
-        if (e.data === 'tick') {
-            scheduler();
-        } else {
-            console.log('message from worker: ' + e.data);
-        }
-    });
+timerWorker.addEventListener('message', function(e) {
+    if (e.data === 'tick') {
+        scheduler();
+    } else {
+        console.log('message from worker: ' + e.data);
+    }
+});
 
-    timerWorker.postMessage({'interval': tickRate});
+timerWorker.postMessage({'interval': tickRate});
 
-    load();
+document.querySelector(SELECTORS.playButton).addEventListener('mousedown', play);
+document.querySelector(SELECTORS.stopButton).addEventListener('mousedown', stop);
 
-    document.querySelector(SELECTORS.playButton).addEventListener('mousedown', play);
-    document.querySelector(SELECTORS.stopButton).addEventListener('mousedown', stop);
-}
-
-window.addEventListener('load', main);
 console.log('%cReady!', 'background-color: green; color: white;');
