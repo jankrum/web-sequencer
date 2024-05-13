@@ -1,6 +1,6 @@
-export default class Transport {
+export default class Timeline {
     /**
-     * Creates a new Transport object
+     * Creates a new Timeline object
      * @param {Element} playButton 
      * @param {Element} pauseButton 
      * @param {Element} resumeButton 
@@ -38,14 +38,12 @@ export default class Transport {
         
         // Web Worker
         this.schedulerWindowSize = 100;  // The number of milliseconds to look ahead for scheduling
-        const tickRate = 25;  // The number of milliseconds between running the scheduler
-        this.timerWorker = new Worker('metronome-worker.js');
-        this.timerWorker.addEventListener('message', e => {
+        this.schedulerWorker = new Worker('scheduler-worker.js');
+        this.schedulerWorker.addEventListener('message', e => {
             if (e.data === 'tick') {
                 this.scheduler();
             }
         });
-        this.timerWorker.postMessage({ 'interval': tickRate });
     }
     
     /**
@@ -60,19 +58,28 @@ export default class Transport {
      * Adds a defined note's on and off events to the chart
      * @param {Number} note 
      * @param {Number} start 
-     * @param {Number} length 
+     * @param {Number} length
      */
-    scheduleNote = (note, start, length) => {
-        this.chart.push({
-            type: 'noteOn',
-            note,
-            position: start
-        });
-        this.chart.push({
-            type: 'noteOff',
-            note,
-            position: start + length
-        });
+    addNoteToChart = (note, start, length) => {
+        if (typeof note === 'number') {
+            this.chart.push({
+                type: 'noteOn',
+                note,
+                position: start
+            });
+            this.chart.push({
+                type: 'noteOff',
+                note,
+                position: start + length
+            });
+        } else if (typeof note === 'function') {
+            this.chart.push({
+                type: 'abstractNoteOn',
+                note,
+                position: start,
+                length
+            });
+        }
     }
     
     /**
@@ -89,13 +96,6 @@ export default class Transport {
      * @returns {Boolean} Whether we need to schedule an event
      */
     seeIfWeNeedToSchedule() {
-        // If we have no more events to schedule, stop playing after the last event
-        if (!this.eventBuffer.length) {
-            this.playing = false;
-            const millisecondsToLastEvent = this.nextEventTime - window.performance.now();
-            setTimeout(this.stop, millisecondsToLastEvent);
-        }
-
         const endOfSchedulerWindow = window.performance.now() + this.schedulerWindowSize;
 
         return this.nextEventTime < endOfSchedulerWindow;
@@ -113,6 +113,32 @@ export default class Transport {
         } else if (event.type === 'noteOff') {
             this.midiOutput.send([0x80, event.note, 0x00], this.nextEventTime);
             this.currentNotes.splice(this.currentNotes.indexOf(event.note), 1);
+        } else if (event.type === 'abstractNoteOn') {
+            // Reify the abstract note on event
+            const note = event.note();
+
+            /// Insert the note off event into the event buffer, which has to be sorted by position
+            const noteOffPosition = event.position + event.length;
+            const indexOfEventAfterNoteOff = this.eventBuffer.findIndex(e => e.position > noteOffPosition);
+
+            // If there is no event after the note off event, push it to the end
+            if (indexOfEventAfterNoteOff === -1) {
+                this.eventBuffer.push({
+                    type: 'noteOff',
+                    note,
+                    position: noteOffPosition
+                });
+            } else {
+                this.eventBuffer.splice(indexOfEventAfterNoteOff, 0, {
+                    type: 'noteOff',
+                    note,
+                    position: noteOffPosition
+                });
+            }
+
+            // Regular note on stuff
+            this.currentNotes.push(note);
+            this.midiOutput.send([0x90, note, 0x7f], this.nextEventTime);
         }
 
         this.getNextEvent();
@@ -126,6 +152,13 @@ export default class Transport {
         if (this.eventBuffer.length) {
             this.nextEvent = this.eventBuffer.shift();
             this.nextEventTime = (this.nextEvent.position * this.millisecondsPerBeat) + this.startTime;
+        } else {
+            console.log('No more events to schedule!');
+
+            this.playing = false;
+            const millisecondsToLastEvent = this.nextEventTime - window.performance.now();
+            setTimeout(this.stop, millisecondsToLastEvent);
+            return false;
         }
     }
 
@@ -147,7 +180,7 @@ export default class Transport {
         this.getNextEvent();  // Needs to be called after startTime is set        
 
         // Start the worker, which will run the scheduler
-        this.timerWorker.postMessage('start');
+        this.schedulerWorker.postMessage('start');
 
         this.playButton.disabled = true;
         this.pauseButton.disabled = false;
@@ -164,7 +197,7 @@ export default class Transport {
         this.playing = false;
 
         // Stop the worker right away so we don't schedule any more events
-        this.timerWorker.postMessage('stop');
+        this.schedulerWorker.postMessage('stop');
 
         // Find out how much time has elapsed since we started playing
         this.elapsedTime = window.performance.now() - this.startTime;
@@ -194,8 +227,12 @@ export default class Transport {
         // Compute the new start time based on the elapsed time
         this.startTime = window.performance.now() - this.elapsedTime;
 
+        for (const note of this.currentNotes) {
+            this.midiOutput.send([0x90, note, 0x7f]);
+        }
+
         // Start the worker, which will run the scheduler
-        this.timerWorker.postMessage('start');
+        this.schedulerWorker.postMessage('start');
 
         this.playButton.disabled = true;
         this.pauseButton.disabled = false;
@@ -212,7 +249,7 @@ export default class Transport {
         this.playing = false;
         
         // Stop the worker right away so we don't schedule any more events
-        this.timerWorker.postMessage('stop');
+        this.schedulerWorker.postMessage('stop');
         
         // The notes we want to stop may be scheduled but not playing yet
         const twoSchedulerWindowsFromNow = window.performance.now() + (this.schedulerWindowSize * 2);

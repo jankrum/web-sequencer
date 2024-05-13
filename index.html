@@ -5,19 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        body {
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div>
         <button id="play-button">Start</button>
-        <button id="pause-button">Pause</button>
-        <button id="resume-button">Resume</button>
-        <button id="stop-button">Stop</button>
+        <button id="pause-button" disabled>Pause</button>
+        <button id="resume-button" disabled>Resume</button>
+        <button id="stop-button" disabled>Stop</button>
+    </div>
+
+    <hr>
+
+    <div class="control-module">
+        <label for="knob">8va Chance: <span id="chanceSpan">50</span>%</label>
+        <input id="knob" type="range" min="0" max="100" value="50">
     </div>
 
     <script src="app.js" type="module"></script>

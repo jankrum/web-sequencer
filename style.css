@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+hr {
+    width: 100%;
+}
+
+.control-module {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
