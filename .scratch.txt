@@ -1,5 +1,5 @@
 Stuff to do next:
-- Remove metronome-worker.js and integrate as blob function
-- Add scheduleComputedNote() method to transport
+- Find way to make workers not rely on separate server call
 - Come up with more wholesome way of controlling playback
 - Add scheduled tempo changes
+- Integrate Lua interpreter and musicXML parser
