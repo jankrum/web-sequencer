@@ -91,4 +91,10 @@ for (const { start, length, note } of twinkleTwinkleLittleStarChart) {
     timeline.addNoteToChart(note, start, length);
 }
 
+// Clear local storage when the Konami code is entered
+new Konami(() => {
+    localStorage.clear();
+    alert('Cleared local storage!');
+});
+
 console.log('%cReady!', 'background-color: green; color: white;');
