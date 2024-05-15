@@ -1,0 +1,215 @@
+{
+    "tempo": "240",
+    "notes": [
+        {
+            "pitch": "C4",
+            "start": "0",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "C4",
+            "start": "1",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "2",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "3",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "A4",
+            "start": "4",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "A4",
+            "start": "5",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "6",
+            "duration": "1.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "8",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "9",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "10",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "11",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "D4",
+            "start": "12",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "D4",
+            "start": "13",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "C4",
+            "start": "14",
+            "duration": "1.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "16",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "17",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "18",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "19",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "20",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "21",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "D4",
+            "start": "22",
+            "duration": "1.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "24",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "25",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "26",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "27",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "28",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "29",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "D4",
+            "start": "30",
+            "duration": "1.9"
+        },
+        {
+            "pitch": "C4",
+            "start": "32",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "C4",
+            "start": "33",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "34",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "35",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "A4",
+            "start": "36",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "A4",
+            "start": "37",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "G4",
+            "start": "38",
+            "duration": "1.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "40",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "F4",
+            "start": "41",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "42",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "E4",
+            "start": "43",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "D4",
+            "start": "44",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "D4",
+            "start": "45",
+            "duration": "0.9"
+        },
+        {
+            "pitch": "C4",
+            "start": "46",
+            "duration": "1.9"
+        }
+    ]
+}
