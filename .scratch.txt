@@ -3,3 +3,6 @@ Stuff to do next:
 - Come up with more wholesome way of controlling playback
 - Add scheduled tempo changes
 - Integrate Lua interpreter and musicXML parser
+
+Script approach:
+- The point of the script is to transform a chart and controller information into an event buffer

@@ -19,11 +19,14 @@
     <hr>
 
     <div class="control-module">
-        <label for="knob">8va Chance: <span id="chanceSpan">50</span>%</label>
-        <input id="knob" type="range" min="0" max="100" value="50">
+        <label for="knob">
+            <span id="prefix"></span>
+            <span id="value"></span>
+            <span id="suffix"></span>
+        </label>
+        <input type="range" id="knob" min="0" max="100" value="50">
     </div>
 
-    <script src="https://unpkg.com/konami"></script>
     <script src="app.js" type="module"></script>
 </body>
 
