@@ -6,3 +6,6 @@ Stuff to do next:
 
 Script approach:
 - The point of the script is to transform a chart and controller information into an event buffer
+
+The chart of what we will play
+The script transforms the chart into events for the
