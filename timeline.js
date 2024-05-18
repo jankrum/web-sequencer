@@ -56,26 +56,26 @@ export default class Timeline {
 
     /**
      * Adds a defined note's on and off events to the chart
-     * @param {Number} note 
+     * @param {Number} pitch 
      * @param {Number} start 
      * @param {Number} length
      */
-    addNoteToChart = (note, start, length) => {
-        if (typeof note === 'number') {
+    addNoteToChart = (pitch, start, length) => {
+        if (typeof pitch === 'number') {
             this.chart.push({
                 type: 'noteOn',
-                note,
+                pitch,
                 position: start
             });
             this.chart.push({
                 type: 'noteOff',
-                note,
+                pitch,
                 position: start + length
             });
-        } else if (typeof note === 'function') {
+        } else if (typeof pitch === 'function') {
             this.chart.push({
                 type: 'abstractNoteOn',
-                note,
+                pitch,
                 position: start,
                 length
             });
@@ -108,14 +108,14 @@ export default class Timeline {
         const event = this.nextEvent;
 
         if (event.type === 'noteOn') {
-            this.currentNotes.push(event.note);
-            this.midiOutput.send([0x90, event.note, 0x7f], this.nextEventTime);
+            this.currentNotes.push(event.pitch);
+            this.midiOutput.send([0x90, event.pitch, 0x7f], this.nextEventTime);
         } else if (event.type === 'noteOff') {
-            this.midiOutput.send([0x80, event.note, 0x00], this.nextEventTime);
-            this.currentNotes.splice(this.currentNotes.indexOf(event.note), 1);
+            this.midiOutput.send([0x80, event.pitch, 0x00], this.nextEventTime);
+            this.currentNotes.splice(this.currentNotes.indexOf(event.pitch), 1);
         } else if (event.type === 'abstractNoteOn') {
             // Reify the abstract note on event
-            const note = event.note();
+            const pitch = event.pitch();
 
             /// Insert the note off event into the event buffer, which has to be sorted by position
             const noteOffPosition = event.position + event.length;
@@ -125,20 +125,20 @@ export default class Timeline {
             if (indexOfEventAfterNoteOff === -1) {
                 this.eventBuffer.push({
                     type: 'noteOff',
-                    note,
+                    pitch,
                     position: noteOffPosition
                 });
             } else {
                 this.eventBuffer.splice(indexOfEventAfterNoteOff, 0, {
                     type: 'noteOff',
-                    note,
+                    pitch,
                     position: noteOffPosition
                 });
             }
 
             // Regular note on stuff
-            this.currentNotes.push(note);
-            this.midiOutput.send([0x90, note, 0x7f], this.nextEventTime);
+            this.currentNotes.push(pitch);
+            this.midiOutput.send([0x90, pitch, 0x7f], this.nextEventTime);
         }
 
         this.getNextEvent();
