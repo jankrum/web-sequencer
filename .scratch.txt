@@ -4,8 +4,10 @@ Stuff to do next:
 - Add scheduled tempo changes
 - Integrate Lua interpreter and musicXML parser
 
-Script approach:
-- The point of the script is to transform a chart and controller information into an event buffer
-
-The chart of what we will play
-The script transforms the chart into events for the
+The program starts
+We load a chart
+We load a script
+We get the synthesizer
+We get the controller
+We eval the script and its function
+Evaluating the script will configure the controller

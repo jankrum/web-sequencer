@@ -36,3 +36,5 @@ function transformer(chart) {
         ]
     ];
 }
+
+transformer;

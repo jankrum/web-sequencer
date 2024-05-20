@@ -1,19 +1,21 @@
-export default class Timeline {
+import Part from './part.js';
+
+export default class Sequencer {
     /**
-     * Creates a new Timeline object
+     * Creates a new Sequencer object
      * @param {Element} playButton 
      * @param {Element} pauseButton 
      * @param {Element} resumeButton 
      * @param {Element} stopButton 
      * @param {MIDIOutput} midiOutput 
      */
-    constructor(playButton, pauseButton, resumeButton, stopButton, midiOutput) {
+    constructor(playButton, pauseButton, resumeButton, stopButton) {
         // UI
         this.playButton = playButton;
         this.pauseButton = pauseButton;
         this.resumeButton = resumeButton;
         this.stopButton = stopButton;
-        playButton.disabled = false;
+        playButton.disabled = true;
         pauseButton.disabled = true;
         resumeButton.disabled = true;
         stopButton.disabled = true;
@@ -21,9 +23,6 @@ export default class Timeline {
         pauseButton.addEventListener('mousedown', this.pause);
         resumeButton.addEventListener('mousedown', this.resume);
         stopButton.addEventListener('mousedown', this.stop);
-
-        // MIDI
-        this.midiOutput = midiOutput;
 
         // Logic for playback
         this.playing = false;
@@ -35,6 +34,7 @@ export default class Timeline {
         this.nextEvent = null;  // The next event to schedule
         this.nextTime = null;  // The time of the next event
         this.elapsedTime = 0;  // The time since we started playing
+        this.onlyPart = null;  // The part
         
         // Web Worker
         this.schedulerWindowSize = 100;  // The number of milliseconds to look ahead for scheduling
@@ -45,13 +45,21 @@ export default class Timeline {
             }
         });
     }
-    
+
     /**
-     * Sets the tempo of the playback
-     * @param {Number} tempo 
+     * Creates a part
+     * In the future, this will also take in a part name
+     * @param {MIDIOutput} output 
+     * @param {Controller} controller 
      */
-    setTempo = (tempo) => {
-        this.millisecondsPerBeat = 60000.0 / tempo;
+    createPart(output, controller) {
+        this.onlyPart = new Part(output, controller);
+    }
+    
+    async load(chart, script) {
+        const controller = this.onlyPart.controller;
+        const transformer = eval(script);
+        transformer(chart);
     }
 
     /**
