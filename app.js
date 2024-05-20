@@ -1,78 +1,38 @@
-import getConnection from './get-connection.js';  // Used to get midi connections
-import Timeline from './timeline.js';  // Used to control playback
+// import getConnection from './get-connection.js';  // Used to get midi connections
+// import Timeline from './timeline.js';  // Used to control playback
+import Controller from './controller.js';  // Used to make the controller
 
-// Get the output to the synthesizer
-const synthesizerOutput = await getConnection('synthesizer', 'outputs');
+// // Get the output to the synthesizer
+// const synthesizerOutput = await getConnection('synthesizer', 'outputs');
 
-const timeline = new Timeline(
-    document.querySelector('#play-button'),
-    document.querySelector('#pause-button'),
-    document.querySelector('#resume-button'),
-    document.querySelector('#stop-button'),
-    synthesizerOutput
-);
+// const timeline = new Timeline(
+//     document.querySelector('#play-button'),
+//     document.querySelector('#pause-button'),
+//     document.querySelector('#resume-button'),
+//     document.querySelector('#stop-button'),
+//     synthesizerOutput
+// );
 
-async function load() {    
-    const chart = await (async () => {
-        const rawChart = await fetch('./static/twinkle-twinkle-little-star.json').then(response => response.json());
-        
-        function convertPitchNameToMidiNumber(pitchName) {
-            const letters = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-            
-            const letter = pitchName.slice(0, -1);
-            const octave = Number(pitchName.at(-1));
-            
-            const pitchNameIndex = letters.indexOf(letter);
-            return pitchNameIndex + ((octave + 2) * 12);
-        }
-        
-        return {
-            tempo: Number(rawChart.tempo),
-            notes: rawChart.notes.map(note => ({
-                pitch: convertPitchNameToMidiNumber(note.pitch),
-                start: Number(note.start),
-                duration: Number(note.duration)
-            }))
-        };
-    })();
-    
-    const script = await fetch('./static/octave-jumper.js').then(response => response.text());
-    
-    const controller = (() => {
-        const prefixSpan = document.querySelector('span#prefix');
-        const valueSpan = document.querySelector('span#value');
-        const suffixSpan = document.querySelector('span#suffix');
-        
-        const input = document.querySelector('input');
-        
-        return {
-            configure: (prefix, suffix) => {
-                prefixSpan.textContent = prefix;
-                suffixSpan.textContent = suffix;
-                
-                function updateValue() {
-                    valueSpan.textContent = input.value;
-                }
-                
-                input.addEventListener('input', updateValue);
-                
-                updateValue();
-                
-                return input
-            }
-        };
-    })();
-    
-    const newChart = eval(script)(chart);
-    console.log(newChart.notes[0].pitch());
-    
-    timeline.setTempo(newChart.tempo);
-    
-    for (const note of newChart.notes) {
-        timeline.addNoteToChart(note.pitch, note.start, note.duration);
-    }
-}
+// const chart = await fetch('./static/twinkle-twinkle-little-star.json').then(response => response.json());
+// const script = await fetch('./static/octave-jumper.js').then(response => response.text());
 
-await load();
+const controllerDiv = document.querySelector('#controller');
+const controller = new Controller(controllerDiv, true, 3);
+
+controller.clear();
+
+// Don't judge me for this
+const pitchRange = [[2, 3, 4].map(octave => ['C', 'D', 'E', 'F#', 'G', 'A', 'B'].map(letter => `${letter}${octave}`)), 'C5'].flat(2);
+
+const repeatControl = controller.makeOptionController('Repeat again: ', ['No', 'Yes']);
+const tempoControl = controller.makeRangeController('Tempo: ', 40, 240, ' bpm');
+const pitchControl = controller.makeOptionController('Pitch: ', pitchRange);
+
+// const newChart = eval(script)(chart);
+// console.log(newChart.notes[0].pitch());
+
+// for (const note of newChart.notes) {
+//     timeline.addNoteToChart(note.pitch, note.start, note.duration);
+// }
     
 console.log('%cReady!', 'background-color: green; color: white;');

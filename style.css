@@ -17,3 +17,10 @@ hr {
     flex-direction: column;
     align-items: center;
 }
+
+.control-module input {
+    width: 100%;
+    margin: 10px 0;
+    padding: 5px;
+    border: 1px solid black;
+}
