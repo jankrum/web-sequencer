@@ -1,40 +1,46 @@
 const repeatControl = controller.makeOptionController('Repeat again: ', ['No', 'Yes'], '!');
 
+let nextMeasureNumber = 1;
 
-function transformer(chart) {
-    // All the notes in the first measure
-    const firstMeasure = chart.score.slice(1);
+const result = [
+    ...chart.score,
+    [
+        {
+            type: 'computed',
+            value: eventBuffer => {
+                const shouldRepeat = repeatControl.value;
 
-    function computeRepeatOrEnd(eventBuffer) {
-        const shouldRepeat = repeatControl.value;
-        
-        if (shouldRepeat) {
-            firstMeasure.forEach(note => {
-                eventBuffer.push([{
-                    type: 'note',
-                    pitch: note[0].pitch,
-                    duration: note[1]
-                }, note[1]])
-            });
-        } else {
-            eventBuffer.push([{
-                type: 'stop'
-            }, [1]])
-        }
-    }
+                if (shouldRepeat) {
+                    console.log('Yea we are repeating!');
+                    
+                    console.log(`Next measure number: ${nextMeasureNumber}`);
 
-    const result = [
-        ...chart.score,
+                    function writeNewMeasure(eventAndTime) {
+                        const [event, time] = eventAndTime;
+                        return [event, [nextMeasureNumber, ...time.slice(1)]]
+                    }
+
+                    const eventsWithoutTempo = result.slice(1)
+                    const nextMeasure = eventsWithoutTempo.map(writeNewMeasure);
+
+                    eventBuffer.push(...nextMeasure);
+                } else {
+                    console.log('We are not repeating!');
+
+                    console.log(`Next measure number: ${nextMeasureNumber}`);
+
+                    eventBuffer.push([{
+                        type: 'stop'
+                    }, [nextMeasureNumber]])
+                }
+
+                nextMeasureNumber += 1;
+            }
+        },
         [
-            {
-                type: 'computed',
-                value: computeRepeatOrEnd
-            },
-            [
-                0, 3, 3
-            ]
+            0, 3, 3
         ]
-    ];
-}
+    ]
+];
 
-transformer;
+result;
