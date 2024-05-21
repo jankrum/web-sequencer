@@ -1,8 +1,8 @@
-import Part from './part.js';
+import { insertEventInOrder, convertPositionToBeat, convertPitchNameToMidiNumber } from './utility.js';
 
-export default class Sequencer {
+export default class Leader {
     /**
-     * Creates a new Sequencer object
+     * Creates a new Leader object
      * @param {Element} playButton 
      * @param {Element} pauseButton 
      * @param {Element} resumeButton 
@@ -34,7 +34,8 @@ export default class Sequencer {
         this.nextEvent = null;  // The next event to schedule
         this.nextTime = null;  // The time of the next event
         this.elapsedTime = 0;  // The time since we started playing
-        this.onlyPart = null;  // The part
+        this.midiOutput = null;  // The MIDI output
+        this.controller = null;  // The controller
         
         // Web Worker
         this.schedulerWindowSize = 100;  // The number of milliseconds to look ahead for scheduling
@@ -53,101 +54,113 @@ export default class Sequencer {
      * @param {Controller} controller 
      */
     createPart(output, controller) {
-        this.onlyPart = new Part(output, controller);
+        this.midiOutput = output;
+        this.controller = controller;
     }
     
-    async load(chart, script) {
-        const controller = this.onlyPart.controller;
-        const transformer = eval(script);
-        transformer(chart);
-    }
+    load(chart, script) {
+        const controller = this.controller;
+        const transformerFunction = eval(script);
+        const transformedChart = transformerFunction(chart, controller);
 
-    /**
-     * Adds a defined note's on and off events to the chart
-     * @param {Number} pitch 
-     * @param {Number} start 
-     * @param {Number} length
-     */
-    addNoteToChart = (pitch, start, length) => {
-        if (typeof pitch === 'number') {
-            this.chart.push({
-                type: 'noteOn',
-                pitch,
-                position: start
-            });
-            this.chart.push({
-                type: 'noteOff',
-                pitch,
-                position: start + length
-            });
-        } else if (typeof pitch === 'function') {
-            this.chart.push({
-                type: 'abstractNoteOn',
-                pitch,
-                position: start,
-                length
-            });
-        }
+        this.chart = transformedChart;
+
+        this.playButton.disabled = false;
+        // console.log('Loaded');
     }
     
     /**
      * Runs every tick to schedule events
      */
     scheduler() {
-        while (this.playing && this.seeIfWeNeedToSchedule()) {
+        const endOfSchedulerWindow = window.performance.now() + this.schedulerWindowSize
+
+        while (this.playing && this.nextEventTime < endOfSchedulerWindow) {
             this.scheduleEvent();
         }
-    }
-
-    /**
-     * Checks to see if there is an event scheduled within the scheduler window
-     * @returns {Boolean} Whether we need to schedule an event
-     */
-    seeIfWeNeedToSchedule() {
-        const endOfSchedulerWindow = window.performance.now() + this.schedulerWindowSize;
-
-        return this.nextEventTime < endOfSchedulerWindow;
     }
 
     /**
      * Schedules the next event
      */
     scheduleEvent() {
-        const event = this.nextEvent;
+        const [event, position] = this.nextEvent;
 
-        if (event.type === 'noteOn') {
-            this.currentNotes.push(event.pitch);
-            this.midiOutput.send([0x90, event.pitch, 0x7f], this.nextEventTime);
-        } else if (event.type === 'noteOff') {
-            this.midiOutput.send([0x80, event.pitch, 0x00], this.nextEventTime);
-            this.currentNotes.splice(this.currentNotes.indexOf(event.pitch), 1);
-        } else if (event.type === 'abstractNoteOn') {
-            // Reify the abstract note on event
-            const pitch = event.pitch();
+        // console.log('Event to schedule:');
+        // console.log(event);
 
-            /// Insert the note off event into the event buffer, which has to be sorted by position
-            const noteOffPosition = event.position + event.length;
-            const indexOfEventAfterNoteOff = this.eventBuffer.findIndex(e => e.position > noteOffPosition);
+        switch (event.type) {
+            case 'tempo':
+                const bpm = event.bpm;
+                this.millisecondsPerBeat = 60000 / bpm;
+                break;
+            case 'note':
+                const pitch = event.pitch;
+                const duration = event.duration;
+                const midiPitch = convertPitchNameToMidiNumber(pitch);
 
-            // If there is no event after the note off event, push it to the end
-            if (indexOfEventAfterNoteOff === -1) {
-                this.eventBuffer.push({
+                this.currentNotes.push(midiPitch);
+
+                const noteOffEvent = {
                     type: 'noteOff',
-                    pitch,
-                    position: noteOffPosition
-                });
-            } else {
-                this.eventBuffer.splice(indexOfEventAfterNoteOff, 0, {
-                    type: 'noteOff',
-                    pitch,
-                    position: noteOffPosition
-                });
-            }
+                    midiPitch
+                };
+                const noteOffPosition = [(position[0] || 0), ((position[1] || 0) + duration), (position[2] || 0)];
+                insertEventInOrder([noteOffEvent, noteOffPosition], this.eventBuffer);
 
-            // Regular note on stuff
-            this.currentNotes.push(pitch);
-            this.midiOutput.send([0x90, pitch, 0x7f], this.nextEventTime);
+                this.midiOutput.send([0x90, midiPitch, 0x7f], this.nextEventTime);
+                break;
+            case 'noteOff':
+                this.midiOutput.send([0x80, event.midiPitch, 0x00], this.nextEventTime);
+                this.currentNotes.splice(this.currentNotes.indexOf(event.pitch), 1);
+                break;
+            case 'computed':
+                event.callback(this.eventBuffer);
+                break;
+            case 'stop':
+                this.stop();
+                return;
+            default:
+                console.error(`Unknown event type: ${event.type}`);
+                break;
         }
+
+        // if (event.type === 'note') {
+        //     const midiPitch = convertPitchNameToMidiNumber(event.pitch);
+        //     insertEventInOrder([{type: 'noteOff', pitch: event.pitch}, ], this.eventBuffer);
+        //     this.currentNotes.push(midiPitch);
+
+        //     this.midiOutput.send([0x90, midiPitch, 0x7f], this.nextEventTime);
+        // } else if (event.type === 'noteOff') {
+        //     this.midiOutput.send([0x80, event.pitch, 0x00], this.nextEventTime);
+        //     this.currentNotes.splice(this.currentNotes.indexOf(event.pitch), 1);
+        // } else if (event.type === 'abstractNoteOn') {
+        //     // Reify the abstract note on event
+        //     const pitch = event.pitch();
+
+        //     /// Insert the note off event into the event buffer, which has to be sorted by position
+        //     const noteOffPosition = event.position + event.length;
+        //     const indexOfEventAfterNoteOff = this.eventBuffer.findIndex(e => e.position > noteOffPosition);
+
+        //     // If there is no event after the note off event, push it to the end
+        //     if (indexOfEventAfterNoteOff === -1) {
+        //         this.eventBuffer.push({
+        //             type: 'noteOff',
+        //             pitch,
+        //             position: noteOffPosition
+        //         });
+        //     } else {
+        //         this.eventBuffer.splice(indexOfEventAfterNoteOff, 0, {
+        //             type: 'noteOff',
+        //             pitch,
+        //             position: noteOffPosition
+        //         });
+        //     }
+
+        //     // Regular note on stuff
+        //     this.currentNotes.push(pitch);
+        //     this.midiOutput.send([0x90, pitch, 0x7f], this.nextEventTime);
+        // }
 
         this.getNextEvent();
     }
@@ -157,17 +170,9 @@ export default class Sequencer {
      */
     getNextEvent() {
         // Get the next event if there is one
-        if (this.eventBuffer.length) {
-            this.nextEvent = this.eventBuffer.shift();
-            this.nextEventTime = (this.nextEvent.position * this.millisecondsPerBeat) + this.startTime;
-        } else {
-            console.log('No more events to schedule!');
-
-            this.playing = false;
-            const millisecondsToLastEvent = this.nextEventTime - window.performance.now();
-            setTimeout(this.stop, millisecondsToLastEvent);
-            return false;
-        }
+        this.nextEvent = this.eventBuffer.shift();
+        const position = convertPositionToBeat(this.nextEvent[1]);
+        this.nextEventTime = (position * this.millisecondsPerBeat) + this.startTime;
     }
 
     /**
@@ -183,6 +188,11 @@ export default class Sequencer {
         for (const element of this.chart) {
             this.eventBuffer.push(element);
         }
+
+        // console.log('Chart:');
+        // console.log(this.chart);
+        // console.log('First event:');
+        // console.log(this.eventBuffer[0]);
 
         this.startTime = window.performance.now();
         this.getNextEvent();  // Needs to be called after startTime is set        

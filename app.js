@@ -24,6 +24,6 @@ leader.createPart(synthesizerOutput, synthesizerController);
 const chart = await fetch('./static/on-the-run.json').then(response => response.json());
 const script = await fetch('./static/repeater.js').then(response => response.text());
 
-await leader.load(chart, script);
+leader.load(chart, script);
 
 console.log('%cReady!', 'background-color: green; color: white;');
