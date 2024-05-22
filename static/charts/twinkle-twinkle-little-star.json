@@ -1,8 +1,5 @@
 {
-    "part": {
-        "name": "synthesizer",
-        "scriptName": "octave-jumper"
-    },
+    "script": "octave-jumper",
     "score": [
         {
             "type": "tempo",

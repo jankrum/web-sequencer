@@ -5,9 +5,8 @@ Stuff to do next:
 - Integrate Lua interpreter and musicXML parser
 
 The program starts
-We load a chart
-We load a script
-We get the synthesizer
-We get the controller
-We eval the script and its function
-Evaluating the script will configure the controller
+We create the transporter
+We create the leader
+We connect the transporter and the leader to each other
+We load the setlist to the leader
+The leader sees what part and script it needs

@@ -48,8 +48,3 @@ export function dumbStringToState(dumbString) {
     const title = dumbString.slice(1);
     return { canPrevious, canNext, state, title };
 }
-
-export async function getSetlist() {
-    const setlistLines = await fetch('./static/setlist.txt').then(response => response.text());
-    return setlistLines.split('\n');
-}

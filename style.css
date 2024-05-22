@@ -11,6 +11,11 @@ hr {
     width: 100%;
 }
 
+#transporter>p {
+    font-size: x-large;
+    font-family: monospace;
+}
+
 .control-module {
     width: 300px;
     display: flex;
@@ -18,7 +23,11 @@ hr {
     align-items: center;
 }
 
-.control-module input {
+.control-module>label>span {
+    font-family: monospace;
+}
+
+.control-module>input {
     width: 100%;
     margin: 10px 0;
     padding: 5px;

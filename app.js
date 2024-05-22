@@ -1,13 +1,20 @@
-import { getSetlist } from "./utility.js";
 import mediate from "./mediate.js";
-import Leader from './leader.js';  // Leads the band
-import Transporter from './transporter.js';  // Controls playback
-// import getConnection from './get-connection.js';  // Used to get midi connections
-// import Controller from './controller.js';  // Used to make the controller
+import Leader from './leader.js';
+import Transporter from './transporter.js';
 
-const leader = new Leader(await getSetlist());
-const transporter = new Transporter(document.querySelector('#transporter'));
+const transporterDiv = document.querySelector('#transporter');
+const transporter = new Transporter(transporterDiv);
+
+const controllerDiv = document.querySelector('#controller');
+const controller = new Controller(controllerDiv, false, 1);
+
+const leader = new Leader();
+
 mediate(leader, transporter);
+
+await leader.start();
+
+console.log('%cReady!', 'background-color: green; color: white;');
 
 // // Get the output to the synthesizer
 // const synthesizerOutput = await getConnection('synthesizer', 'outputs');
@@ -25,5 +32,3 @@ mediate(leader, transporter);
 // const script = await fetch('./static/repeater.js').then(response => response.text());
 
 // leader.load(chart, script);
-
-// console.log('%cReady!', 'background-color: green; color: white;');
