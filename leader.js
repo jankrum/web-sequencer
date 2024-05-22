@@ -1,28 +1,9 @@
 import { insertEventInOrder, convertPositionToBeat, convertPitchNameToMidiNumber } from './utility.js';
 
 export default class Leader {
-    /**
-     * Creates a new Leader object
-     * @param {Element} playButton 
-     * @param {Element} pauseButton 
-     * @param {Element} resumeButton 
-     * @param {Element} stopButton 
-     * @param {MIDIOutput} midiOutput 
-     */
-    constructor(playButton, pauseButton, resumeButton, stopButton) {
-        // UI
-        this.playButton = playButton;
-        this.pauseButton = pauseButton;
-        this.resumeButton = resumeButton;
-        this.stopButton = stopButton;
-        playButton.disabled = true;
-        pauseButton.disabled = true;
-        resumeButton.disabled = true;
-        stopButton.disabled = true;
-        playButton.addEventListener('mousedown', this.play);
-        pauseButton.addEventListener('mousedown', this.pause);
-        resumeButton.addEventListener('mousedown', this.resume);
-        stopButton.addEventListener('mousedown', this.stop);
+    constructor(setlist) {
+        this.mediator = null;
+        this.setlist = setlist;
 
         // Logic for playback
         this.playing = false;
@@ -36,7 +17,7 @@ export default class Leader {
         this.elapsedTime = 0;  // The time since we started playing
         this.midiOutput = null;  // The MIDI output
         this.controller = null;  // The controller
-        
+
         // Web Worker
         this.schedulerWindowSize = 100;  // The number of milliseconds to look ahead for scheduling
         this.schedulerWorker = new Worker('scheduler-worker.js');
@@ -45,6 +26,15 @@ export default class Leader {
                 this.scheduler();
             }
         });
+    }
+
+    assignMediator(mediator) {
+        this.mediator = mediator;
+        mediator.setLeader(this);
+    }
+
+    receiveTransporterButtonPress(buttonPressed) {
+        console.log(`Button pressed: ${buttonPressed}`);
     }
 
     /**
@@ -57,7 +47,7 @@ export default class Leader {
         this.midiOutput = output;
         this.controller = controller;
     }
-    
+
     load(chart, script) {
         const controller = this.controller;
         const transformerFunction = eval(script);
@@ -68,7 +58,7 @@ export default class Leader {
         this.playButton.disabled = false;
         // console.log('Loaded');
     }
-    
+
     /**
      * Runs every tick to schedule events
      */
@@ -235,7 +225,7 @@ export default class Leader {
 
         console.log('Paused!');
     }
-    
+
     /**
      * Resumes playback
      */
@@ -265,18 +255,18 @@ export default class Leader {
      */
     stop = () => {
         this.playing = false;
-        
+
         // Stop the worker right away so we don't schedule any more events
         this.schedulerWorker.postMessage('stop');
-        
+
         // The notes we want to stop may be scheduled but not playing yet
         const twoSchedulerWindowsFromNow = window.performance.now() + (this.schedulerWindowSize * 2);
-        
+
         // Stop the notes that are currently playing and remove them from the currentNotes array
         while (this.currentNotes.length) {
             this.midiOutput.send([0x80, this.currentNotes.pop(), 0x00], twoSchedulerWindowsFromNow);
         }
-        
+
         // Clear the event buffer
         this.eventBuffer = [];
 

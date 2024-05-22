@@ -22,3 +22,34 @@ export function convertPitchNameToMidiNumber(pitchName) {
     const pitchNameIndex = letters.indexOf(letter);
     return pitchNameIndex + ((octave + 2) * 12);
 }
+
+const base32String = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+const states = ['playing', 'paused', 'stopped'];
+
+const previousBitPosition = 3;
+const nextBitPosition = 2;
+const stateBitPosition = 0;
+
+export function dumbStateToString(canPrevious, canNext, transporterState, title) {
+    const canPreviousBit = canPrevious ? 1 << previousBitPosition : 0;
+    const canNextBit = canNext ? 1 << nextBitPosition : 0;
+    const stateBits = states.indexOf(transporterState) << stateBitPosition;
+    const stateChar = base32String[stateBits + canPreviousBit + canNextBit];
+    return stateChar + title;
+}
+
+export function dumbStringToState(dumbString) {
+    const stateChar = dumbString.charAt(0);
+    const stateIndex = base32String.indexOf(stateChar) & (0b11 << stateBitPosition) >> stateBitPosition;
+    const canPrevious = Boolean(base32String.indexOf(stateChar) & (1 << previousBitPosition));
+    const canNext = Boolean(base32String.indexOf(stateChar) & (1 << nextBitPosition));
+    const state = states[stateIndex];
+
+    const title = dumbString.slice(1);
+    return { canPrevious, canNext, state, title };
+}
+
+export async function getSetlist() {
+    const setlistLines = await fetch('./static/setlist.txt').then(response => response.text());
+    return setlistLines.split('\n');
+}
