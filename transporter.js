@@ -14,6 +14,7 @@ export default class Transporter {
     start(parentDiv) {
         // Create the elements
         const titleDisplay = document.createElement('p');
+        const buttonDiv = document.createElement('div');
         const previousButton = document.createElement('button');
         const playButton = document.createElement('button');
         const pauseButton = document.createElement('button');
@@ -46,13 +47,15 @@ export default class Transporter {
         nextButton.disabled = true;
 
         // Add the elements to the parent div
+
+        buttonDiv.appendChild(previousButton);
+        buttonDiv.appendChild(playButton);
+        buttonDiv.appendChild(pauseButton);
+        buttonDiv.appendChild(resumeButton);
+        buttonDiv.appendChild(stopButton);
+        buttonDiv.appendChild(nextButton);
         parentDiv.appendChild(titleDisplay);
-        parentDiv.appendChild(previousButton);
-        parentDiv.appendChild(playButton);
-        parentDiv.appendChild(pauseButton);
-        parentDiv.appendChild(resumeButton);
-        parentDiv.appendChild(stopButton);
-        parentDiv.appendChild(nextButton);
+        parentDiv.appendChild(buttonDiv);
     }
 
     // Called by the mediator to assign the mediator's transporter and set up event listeners

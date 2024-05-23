@@ -11,8 +11,16 @@ hr {
     width: 100%;
 }
 
-#transporter>p {
-    font-size: x-large;
+#transporter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+#transporter>p,
+.control-module>label>span {
+    font-size: xx-large;
     font-family: monospace;
 }
 
@@ -23,13 +31,8 @@ hr {
     align-items: center;
 }
 
-.control-module>label>span {
-    font-family: monospace;
-}
-
 .control-module>input {
     width: 100%;
     margin: 10px 0;
     padding: 5px;
-    border: 1px solid black;
 }

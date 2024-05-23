@@ -1,5 +1,6 @@
 {
-    "script": "octave-jumper",
+    "title": "Twinkle Twinkle Little Star",
+    "scriptName": "octave-jumper",
     "score": [
         {
             "type": "tempo",
