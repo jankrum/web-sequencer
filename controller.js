@@ -112,10 +112,25 @@ export default class Controller {
         this.allocatedModules = 0;
     }
 
+    // This is called by the mediator to set the mediator
+    assignMediator(mediator) {
+        this.mediator = mediator;
+        mediator.setController(this);
+    }
+
     // Clears all the controller modules
     clear() {
         this.controllerModules.forEach(module => module.clear());
         this.allocatedModules = 0;
+    }
+
+    // Randomizes all the controller modules
+    randomize() {
+        this.controllerModules.forEach(module => {
+            const input = module.input;
+            input.value = Math.floor(Math.random() * 128);
+            input.oninput();
+        });
     }
 
     // Gets an unallocated controller module

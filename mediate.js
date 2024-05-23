@@ -2,12 +2,17 @@ class Mediator {
     // Things that the mediator needs to know about
     constructor() {
         this.transporter = null;
+        this.controller = null;
         this.leader = null;
     }
 
     // Sets the transporter for the mediator
     setTransporter(transporter) {
         this.transporter = transporter;
+    }
+
+    setController(controller) {
+        this.controller = controller;
     }
 
     // Sets the leader for the mediator
@@ -18,6 +23,11 @@ class Mediator {
     // This is called by the transporter to send a button press to the leader
     sendButtonPressedFromTransporterToLeader(buttonPressed) {
         this.leader.receiveTransporterButtonPress(buttonPressed);
+    }
+
+    // This is called by the controller to send a knob turn to the leader
+    sendKnobTurnedFromControllerToLeader(knobName, value) {
+        this.leader.receiveKnobTurned(knobName, value);
     }
 
     // This is called by the leader to send a state to the transporter
