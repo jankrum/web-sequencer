@@ -1,3 +1,29 @@
+SCORE EVENTS
+The design of the score is to maximize ease in reading/writing
+Every score event has a type and a time (tone.js time units, etc: 3, "2n", "5:0:1", { "1m": 5, "16n": 4 })
+Types of events:
+- tempo
+    - bpm
+- note
+    - pitch (pitch name units, etc: "C4", "Bb1")
+    - duration (tone.js time units)
+- stop
+
+EVENT BUFFER EVENTS
+The design of the event buffer is to minimize compute time
+Every event in the event buffer has a type and a position (number-of-beats-into-the-song units)
+Types of events:
+- tempo
+    - bpm
+- noteOn
+    - pitch (in midi number units, etc: 60, 22)
+- noteOff
+    - pitch (in midi number units)
+- computed
+    - callback (takes in event buffer and modifies it)
+- stop
+
+
 Stuff to do next:
 - Find way to make workers not rely on separate server call
 - Come up with more wholesome way of controlling playback
