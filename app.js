@@ -3,11 +3,12 @@ import Transporter from './transporter.js';
 import Controller from './controller.js';
 import Leader from './leader.js';
 
+const transporter = new Transporter();
 const transporterDiv = document.querySelector('#transporter');
-const transporter = new Transporter(transporterDiv);
+transporter.addTransporterElements(transporterDiv);
 
-const controllerDiv = document.querySelector('#controller');
 const controller = new Controller(controllerDiv, false, 1);
+const controllerDiv = document.querySelector('#controller');
 
 const leader = new Leader();
 

@@ -1,7 +1,18 @@
 export default class Transporter {
-    constructor(parentDiv) {
-        this.parentDiv = parentDiv;
+    // Things we need the reference between methods
+    constructor() {
+        this.titleDisplay = null;
+        this.previousButton = null;
+        this.playButton = null;
+        this.pauseButton = null;
+        this.resumeButton = null;
+        this.stopButton = null;
+        this.nextButton = null;
+    }
 
+    // Called by app.js to set up the transporter's elements
+    addTransporterElements(parentDiv) {
+        // Create the elements
         const titleDisplay = document.createElement('p');
         const previousButton = document.createElement('button');
         const playButton = document.createElement('button');
@@ -10,6 +21,7 @@ export default class Transporter {
         const stopButton = document.createElement('button');
         const nextButton = document.createElement('button');
 
+        // Store the elements for later
         this.titleDisplay = titleDisplay;
         this.previousButton = previousButton;
         this.playButton = playButton;
@@ -18,6 +30,7 @@ export default class Transporter {
         this.stopButton = stopButton;
         this.nextButton = nextButton;
 
+        // Set the text and disabled state of the elements
         titleDisplay.innerText = '%%EMPTY%%';
         previousButton.innerText = '<-';
         previousButton.disabled = true;
@@ -32,18 +45,22 @@ export default class Transporter {
         nextButton.innerText = '->';
         nextButton.disabled = true;
 
-        this.parentDiv.appendChild(titleDisplay);
-        this.parentDiv.appendChild(previousButton);
-        this.parentDiv.appendChild(playButton);
-        this.parentDiv.appendChild(pauseButton);
-        this.parentDiv.appendChild(resumeButton);
-        this.parentDiv.appendChild(stopButton);
-        this.parentDiv.appendChild(nextButton);
+        // Add the elements to the parent div
+        parentDiv.appendChild(titleDisplay);
+        parentDiv.appendChild(previousButton);
+        parentDiv.appendChild(playButton);
+        parentDiv.appendChild(pauseButton);
+        parentDiv.appendChild(resumeButton);
+        parentDiv.appendChild(stopButton);
+        parentDiv.appendChild(nextButton);
     }
 
+    // Called by the mediator to assign the mediator's transporter and set up event listeners
     assignMediator(mediator) {
+        // The mediator will use this to send state to the transporter
         mediator.setTransporter(this);
 
+        // Sends the button press to the leader through the mediator
         ['previous', 'play', 'pause', 'resume', 'stop', 'next'].forEach(action => {
             this[`${action}Button`].addEventListener('mousedown', () => {
                 mediator.sendButtonPressedFromTransporterToLeader(action);
@@ -51,6 +68,7 @@ export default class Transporter {
         });
     }
 
+    // Called by the mediator to send state to the transporter
     receiveState({ title, canPrevious, transporterState, canNext }) {
         this.titleDisplay.innerText = title;
         this.previousButton.disabled = !canPrevious;
