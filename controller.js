@@ -1,16 +1,28 @@
 /**
- * Performs the given callback the number of times specified by the number
- * @param {Function} callback - The callback to call for each iteration
- * @returns An array of the return values of the callback
+ * Generates an array of the given length and runs the callback for each element
+ * @param {Number} numberOfTimes - The number of times to run the callback
+ * @param {Function} callback - The callback to run
+ * @returns {Array} - An array of the results of the callback
  */
-Number.prototype.timesDo = function (callback) {
-    return Array.from({ length: this }, (_, i) => callback(i));
+function timesDo(numberOfTimes, callback) {
+    return Array.from({ length: numberOfTimes }, (_, i) => callback(i));
 }
 
 // Represents a controller module in the controller
 class ControllerModule {
-    // Creates the controller module and appends it to the parent div
-    constructor(parentDiv) {
+    // Create the values that are referenced between methods
+    constructor() {
+        this.prefixSpan = null;
+        this.valueSpan = null;
+        this.suffixSpan = null;
+        this.input = null;
+
+        this.computeValue = () => input.value;
+    }
+
+    // Called by the controller to set up the controller module's elements
+    start(parentDiv) {
+        // Create the elements
         const moduleDiv = document.createElement('div');
         const label = document.createElement('label');
         const prefixSpan = document.createElement('span');
@@ -18,6 +30,13 @@ class ControllerModule {
         const suffixSpan = document.createElement('span');
         const input = document.createElement('input');
 
+        // Store the elements for later
+        this.prefixSpan = prefixSpan;
+        this.valueSpan = valueSpan;
+        this.suffixSpan = suffixSpan;
+        this.input = input;
+
+        // Set the classes and attributes of the elements
         moduleDiv.classList.add('control-module');
         prefixSpan.innerText = '%%';
         prefixSpan.classList.add('prefix-span');
@@ -30,19 +49,13 @@ class ControllerModule {
         input.max = 127;
         input.value = 63;
 
-        this.prefixSpan = prefixSpan;
-        this.valueSpan = valueSpan;
-        this.suffixSpan = suffixSpan;
-        this.input = input;
-
+        // Add the elements to the parent div
         label.appendChild(prefixSpan);
         label.appendChild(valueSpan);
         label.appendChild(suffixSpan);
         moduleDiv.appendChild(label);
         moduleDiv.appendChild(input);
         parentDiv.appendChild(moduleDiv);
-
-        this.computeValue = () => input.value;
     }
 
     // Returns the value of the controller module
@@ -53,10 +66,16 @@ class ControllerModule {
     // Clears the controller module
     clear() {
         this.input.oninput = null;
+        this.computeValue = () => this.input.value;
 
         this.prefixSpan.innerText = '';
         this.valueSpan.innerText = '';
         this.suffixSpan.innerText = '';
+    }
+
+    randomize() {
+        this.input.value = Math.floor(Math.random() * 128);
+        this.input.oninput();
     }
 
     // Makes a range control with the given prefix, min, max, and suffix
@@ -106,10 +125,27 @@ class ControllerModule {
 }
 
 export default class Controller {
-    constructor(parentDiv, numberOfModules = 12) {
-        this.numberOfModules = numberOfModules;
-        this.controllerModules = (numberOfModules).timesDo(() => new ControllerModule(parentDiv));
+    // Create the values that are referenced between methods
+    constructor() {
+        this.mediator = null;
+        this.numberOfModules = 0;
+        this.controllerModules = [];
         this.allocatedModules = 0;
+    }
+
+    // Called by app.js to set up the controller's controller modules
+    start(parentDiv, numberOfModules) {
+        this.numberOfModules = numberOfModules;
+
+        // Add a controller module to the parent div
+        function addControllerModuleToParentDiv() {
+            const newControllerModule = new ControllerModule();
+            newControllerModule.start(parentDiv);
+            return newControllerModule;
+        }
+
+        // Create the controller modules
+        this.controllerModules = timesDo(numberOfModules, addControllerModuleToParentDiv);
     }
 
     // This is called by the mediator to set the mediator
@@ -127,26 +163,24 @@ export default class Controller {
     // Randomizes all the controller modules
     randomize() {
         this.controllerModules.forEach(module => {
-            const input = module.input;
-            input.value = Math.floor(Math.random() * 128);
-            input.oninput();
+            module.randomize();
         });
     }
 
     // Gets an unallocated controller module
     getUnallocatedModule() {
         if (this.allocatedModules >= this.numberOfModules) {
-            const errorMessage = `Cannot allocate controller module ${this.allocatedModules} >= ${this.numberOfModules}`
+            const errorMessage = `Out of modules to allocate! Allocated ${this.allocatedModules} of ${this.numberOfModules} modules.`
             throw new Error(errorMessage);
         }
 
-        const moduleDiv = this.controllerModules[this.allocatedModules];
+        const unallocatedModule = this.controllerModules[this.allocatedModules];
         this.allocatedModules += 1;
-        return moduleDiv;
+        return unallocatedModule;
     }
 
     // Makes a range control with the given prefix, min, max, and suffix
-    makeRangeControl(prefix, min, max, suffix = '') {
+    getRangeControl(prefix, min, max, suffix = '') {
         const newModule = this.getUnallocatedModule();
 
         newModule.makeRangeControl(prefix, min, max, suffix);
@@ -155,7 +189,7 @@ export default class Controller {
     }
 
     // Makes an option control with the given prefix, options, and suffix
-    makeOptionControl(prefix, options, suffix = '') {
+    getOptionControl(prefix, options, suffix = '') {
         const newModule = this.getUnallocatedModule();
 
         newModule.makeOptionControl(prefix, options, suffix);

@@ -25,11 +25,6 @@ class Mediator {
         this.leader.receiveTransporterButtonPress(buttonPressed);
     }
 
-    // This is called by the controller to send a knob turn to the leader
-    sendKnobTurnedFromControllerToLeader(knobName, value) {
-        this.leader.receiveKnobTurned(knobName, value);
-    }
-
     // This is called by the leader to send a state to the transporter
     sendStateFromLeaderToTransporter(state) {
         this.transporter.receiveState(state);

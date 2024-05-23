@@ -11,7 +11,7 @@ export default class Transporter {
     }
 
     // Called by app.js to set up the transporter's elements
-    addTransporterElements(parentDiv) {
+    start(parentDiv) {
         // Create the elements
         const titleDisplay = document.createElement('p');
         const previousButton = document.createElement('button');
