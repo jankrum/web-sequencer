@@ -1,4 +1,6 @@
 ({ controller, score, helper }) => {
+    const repeatControl = controller.getOptionControl('Repeat again: ', ['No', 'Yes'], '!');
+
     const notesOnly = scoreEvent => scoreEvent.type === 'note';
 
     const makeSimpler = scoreEvent => {
@@ -21,78 +23,6 @@
     }
 
     const firstMeasureNoteOnsAndOffs = score.filter(notesOnly).map(makeSimpler).flat()
-
-    // const result = [
-    //     ...chart.score,
-    //     [
-    //         {
-    //             type: 'computed',
-    //             callback: eventBuffer => {
-    //                 const shouldRepeat = repeatControl.value;
-
-    //                 if (shouldRepeat) {
-    //                     console.log(`Next measure number: ${nextMeasureNumber}`);
-
-    //                     function writeNewMeasure(eventAndTime) {
-    //                         const [event, time] = eventAndTime;
-    //                         return [event, [nextMeasureNumber, ...time.slice(1)]]
-    //                     }
-
-    //                     const eventsWithoutTempo = result.slice(1);
-    //                     const nextMeasure = eventsWithoutTempo.map(writeNewMeasure);
-
-    //                     eventBuffer.push(...nextMeasure);
-    //                 } else {
-    //                     eventBuffer.push([{
-    //                         type: 'stop'
-    //                     }, [nextMeasureNumber]]);
-    //                 }
-
-    //                 nextMeasureNumber += 1;
-    //             }
-    //         },
-    //         [
-    //             0, 3, 3
-    //         ]
-    //     ]
-    // ];
-
-    // function transformEvent(scoreEvent) {
-    //     const type = scoreEvent.type;
-    //     const time = scoreEvent.time;
-
-    //     const position = helper.convertTimeToPosition(time);
-
-    //     if (type === 'tempo') {
-    //         return {
-    //             type: 'tempo',
-    //             position,
-    //             bpm: scoreEvent.bpm,
-    //         }
-    //     }
-
-    //     if (type === 'note') {
-    // const computedPitch = makeOctaveJumpNote(scoreEvent.pitch);
-    // const duration = scoreEvent.duration;
-    // const noteOffPosition = helper.convertTimeToPosition(duration) + position - 0.1;
-    // return [
-    //     {
-    //         type: 'noteOn',
-    //         position,
-    //         pitch: computedPitch,
-    //     },
-    //     {
-    //         type: 'noteOff',
-    //         position: noteOffPosition,
-    //         pitch: computedPitch,
-    //     }
-    // ];
-    //     }
-
-    //     throw new Error(`Unknown event type: ${type}`);
-    // }
-
-    const repeatControl = controller.getOptionControl('Repeat again: ', ['No', 'Yes'], '!');
 
     const maybeMakeRun = (position) => {
         // Its a two beat run
@@ -139,6 +69,5 @@
         }
     ];
 
-    console.log('Result: ', result);
     return result;
 };

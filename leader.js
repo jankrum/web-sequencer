@@ -49,7 +49,6 @@ export default class Leader {
 
             switch (nextEvent.type) {
                 case 'tempo':
-                    console.log('Tempo change! ', this.nextEvent.bpm);
                     this.millisecondsPerBeat = 60000 / this.nextEvent.bpm;
                     break;
                 case 'noteOn':
@@ -65,6 +64,7 @@ export default class Leader {
                     break;
                 case 'stop':
                     this.stop();
+                    this.runScript();
                     this.sendTransporterState();
                     break;
                 default:
@@ -116,6 +116,7 @@ export default class Leader {
                 break;
             case 'stop':
                 this.stop();
+                this.runScript();
                 break;
             case 'next':
                 this.chartIndex += 1;
@@ -177,8 +178,6 @@ export default class Leader {
             this.midiOutput.send([0x80, this.currentNotes.pop(), 0x00], twoSchedulerWindowsFromNow);
         }
 
-        this.runScript();
-
         console.debug('Stopped!');
     }
 
@@ -195,6 +194,8 @@ export default class Leader {
     }
 
     async load() {
+        this.stop();
+
         const chartName = this.setlist[this.chartIndex];
         const chartPath = `./static/charts/${chartName}.json`
         const chartText = await getTextFile(chartPath);
