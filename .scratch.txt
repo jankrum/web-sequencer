@@ -25,9 +25,10 @@ Types of events:
 
 
 Stuff to do next:
+- Multiple parts per chart
+- Ways of simplifying dummy script
+- 8 step sequencer
 - Find way to make workers not rely on separate server call
-- Come up with more wholesome way of controlling playback
-- Add scheduled tempo changes
 - Integrate Lua interpreter and musicXML parser
 
 The program starts
