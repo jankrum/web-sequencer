@@ -1,18 +1,19 @@
 ({ controller, score, helper }) => {
-    const octaveJumpChanceControl = controller.configure('8va chance: ', '%');
+    const octaveJumpChanceControl = controller.getRangeControl('8va chance: ', 0, 100, '%');
 
     function makeOctaveJumpNote(basePitch) {
         const roll = Math.random() * 100;
 
         const chance = octaveJumpChanceControl.value;
 
-        console.log(`Roll: ${roll}, chance: ${chance}`);
+        console.debug(`Roll: ${roll}, chance: ${chance}`);
 
-        return basePitch + (roll > chance ? 0 : 12);
+        return helper.convertPitchNameToMidiNumber(basePitch) + (roll > chance ? 0 : 12);
     }
 
-    function transform(scoreEvent) {
-        const { type, time } = scoreEvent;
+    function transformEvent(scoreEvent) {
+        const type = scoreEvent.type;
+        const time = scoreEvent.time;
 
         const position = helper.convertTimeToPosition(time);
 
@@ -25,14 +26,14 @@
                 }
             case 'note':
                 const callback = eventBuffer => {
-                    const computedPitch = makeOctaveJumpNote(pitch);
+                    const computedPitch = makeOctaveJumpNote(scoreEvent.pitch);
                     helper.insertEventInOrder({
                         type: 'noteOn',
                         position,
                         pitch: computedPitch,
                     }, eventBuffer);
 
-                    const noteOffPosition = helper.convertTimeToPosition(scoreEvent.duration) + position;
+                    const noteOffPosition = helper.convertTimeToPosition(scoreEvent.duration) + position - 0.1;
                     helper.insertEventInOrder({
                         type: 'noteOff',
                         position: noteOffPosition,
@@ -44,9 +45,15 @@
                     position,
                     callback
                 }
-
+            case 'stop':
+                return {
+                    type: 'stop',
+                    position
+                }
+            default:
+                throw new Error(`Unknown event type: ${type}`);
         }
     }
 
-    return helper.sortBuffer(score.map(transform).flat());
+    return score.map(transformEvent);
 }

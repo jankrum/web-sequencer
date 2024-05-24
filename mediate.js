@@ -27,7 +27,6 @@ class Mediator {
 
     // This is called by the leader to send a state to the transporter
     sendStateFromLeaderToTransporter(state) {
-        console.log('SENT STATE')
         this.transporter.receiveState(state);
     }
 }

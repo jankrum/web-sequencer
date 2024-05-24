@@ -1,3 +1,6 @@
+import getConnection from './get-connection.js';
+import helper from './helper.js';
+
 async function getTextFile(path) {
     return await fetch(path).then(response => response.text());
 }
@@ -14,11 +17,68 @@ export default class Leader {
 
         this.setlist = null;
         this.chartIndex = 0;
-        this.numberOfCharts = 0;
-
-        this.currentChart = null;
+        this.numberOfCharts = null;
         this.currentState = 'stopped';
+        this.currentChart = null;
+        this.scriptText = null;
+        this.eventBuffer = null;
+        this.currentNotes = [];
+        this.startTime = null;
+        this.millisecondsPerBeat = 500;
+        this.nextEvent = null;
+        this.nextTime = null;
+        this.elapsedTime = 0;
+
+        this.schedulerWindowSize = 100;
+        this.schedulerWorker = new Worker('scheduler-worker.js');
+        this.schedulerWorker = new Worker('scheduler-worker.js');
+        this.schedulerWorker.addEventListener('message', e => {
+            if (e.data === 'tick') {
+                this.scheduler();
+            }
+        });
+
+        this.midiOutput = null;
     }
+
+    scheduler() {
+        const endOfSchedulerWindow = window.performance.now() + this.schedulerWindowSize
+
+        while (this.currentState === 'playing' && this.nextEventTime < endOfSchedulerWindow) {
+            this.scheduleEvent();
+        }
+    }
+
+    scheduleEvent() {
+        const nextEvent = this.nextEvent;
+
+        switch (nextEvent.type) {
+            case 'tempo':
+                this.millisecondsPerBeat = 60000 / this.nextEvent.bpm;
+                break;
+            case 'noteOn':
+                this.currentNotes.push(nextEvent.pitch);
+                this.midiOutput.send([0x90, nextEvent.pitch, 100], this.nextEventTime);
+                break;
+            case 'noteOff':
+                this.currentNotes.splice(this.currentNotes.indexOf(nextEvent.pitch), 1);
+                this.midiOutput.send([0x80, nextEvent.pitch, 0], this.nextEventTime);
+                break;
+            case 'computed':
+                nextEvent.callback(this.eventBuffer);
+                break;
+            case 'stop':
+                this.stop();
+                this.sendTransporterState();
+                break;
+            default:
+                console.error(`Unknown event type: ${nextEvent.type}`);
+                break;
+        }
+
+        this.getNextEvent();
+    }
+
 
     // This is called by the mediator to set the mediator
     assignMediator(mediator) {
@@ -43,34 +103,102 @@ export default class Leader {
     }
 
     // This is called by the mediator to receive a button press from the transporter
-    receiveTransporterButtonPress(buttonPressed) {
+    async receiveTransporterButtonPress(buttonPressed) {
         switch (buttonPressed) {
             case 'previous':
                 this.chartIndex -= 1;
-                this.load();
-                return;
+                await this.load();
+                break;
+            case 'play':
+                this.play()
+                break;
+            case 'pause':
+                this.pause();
+                break;
+            case 'resume':
+                this.resume();
+                break;
+            case 'stop':
+                this.stop();
+                break;
             case 'next':
                 this.chartIndex += 1;
-                this.load();
-                return;
+                await this.load();
+                break;
         }
 
         this.sendTransporterState();
     }
 
+    play() {
+        this.currentState = 'playing';
+
+        this.startTime = window.performance.now();
+
+        this.schedulerWorker.postMessage('start');
+
+        console.debug('Playing!');
+    }
+
+    pause() {
+        this.currentState = 'paused';
+
+        this.schedulerWorker.postMessage('stop');
+
+        this.elapsedTime = window.performance.now() - this.startTime;
+
+        const twoSchedulerWindowsFromNow = window.performance.now() + (this.schedulerWindowSize * 2);
+
+        for (const note of this.currentNotes) {
+            this.midiOutput.send([0x80, note, 0x00], twoSchedulerWindowsFromNow);
+        }
+
+        console.debug('Paused!');
+    }
+
+    resume() {
+        this.currentState = 'playing';
+
+        this.startTime = window.performance.now() - this.elapsedTime;
+
+        for (const note of this.currentNotes) {
+            this.midiOutput.send([0x90, note, 0x7f]);
+        }
+
+        this.schedulerWorker.postMessage('start');
+
+        console.debug('Resuming!');
+    }
+
+    stop() {
+        this.currentState = 'stopped';
+
+        this.schedulerWorker.postMessage('stop');
+
+        const twoSchedulerWindowsFromNow = window.performance.now() + (this.schedulerWindowSize * 2);
+
+        while (this.currentNotes.length) {
+            this.midiOutput.send([0x80, this.currentNotes.pop(), 0x00], twoSchedulerWindowsFromNow);
+        }
+
+        this.runScript();
+
+        console.debug('Stopped!');
+    }
+
     // Gets the setlist, then loads the first chart
     async start() {
+        this.midiOutput = await getConnection('synthesizer', 'outputs');
+
         this.setlist = await getSetlist();
         this.numberOfCharts = this.setlist.length;
 
         await this.load();
+
+        this.sendTransporterState();
     }
 
     async load() {
-        console.log('Loading chart...');
-        console.log('Setlist:');
-        console.log(this.setlist);
-
         const chartName = this.setlist[this.chartIndex];
         const chartPath = `./static/charts/${chartName}.json`
         const chartText = await getTextFile(chartPath);
@@ -78,13 +206,27 @@ export default class Leader {
         this.currentChart = chart;
         const scriptName = chart.scriptName;
         const scriptPath = `./static/scripts/${scriptName}.js`;
-        const scriptText = await getTextFile(scriptPath);
+        this.scriptText = await getTextFile(scriptPath);
 
-        // console.log('Chart:');
-        // console.log(chart);
-        // console.log('Script:');
-        // console.log(script);
+        this.runScript();
+        this.getNextEvent();
+    }
 
-        this.sendTransporterState();
+    getNextEvent() {
+        this.nextEvent = this.eventBuffer.shift();
+        this.nextEventTime = (this.nextEvent.position * this.millisecondsPerBeat) + this.startTime;
+    }
+
+    runScript() {
+        const controller = this.mediator.controller;
+        controller.clear();
+
+        const score = this.currentChart.score;
+
+        this.eventBuffer = eval(this.scriptText)({
+            controller,
+            score,
+            helper
+        });
     }
 }

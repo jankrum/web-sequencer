@@ -90,7 +90,7 @@ class ControllerModule {
         this.computeValue = () => min + Math.round(slope * this.input.value);
 
         // Updates the value span
-        function updateValueSpan() {
+        const updateValueSpan = () => {
             this.valueSpan.innerText = this.computeValue();
         }
 

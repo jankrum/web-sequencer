@@ -1,8 +1,8 @@
 // Imports
-import mediate from "./mediate.js";
 import Transporter from './transporter.js';
 import Controller from './controller.js';
 import Leader from './leader.js';
+import mediate from "./mediate.js";
 
 // Create the transporter, controller, and leader
 const transporter = new Transporter();
