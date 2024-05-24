@@ -113,7 +113,7 @@ class ControllerModule {
         this.computeValue = () => Math.floor(this.input.value / divisionSize);
 
         // Updates the value span
-        function updateValueSpan() {
+        const updateValueSpan = () => {
             this.valueSpan.innerText = options[this.computeValue()];
         }
 

@@ -5,7 +5,7 @@
         {
             "type": "tempo",
             "time": 0,
-            "bpm": 300
+            "bpm": 120
         },
         {
             "type": "note",

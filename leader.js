@@ -45,40 +45,36 @@ export default class Leader {
         const endOfSchedulerWindow = window.performance.now() + this.schedulerWindowSize
 
         while (this.currentState === 'playing' && this.nextEventTime < endOfSchedulerWindow) {
-            this.scheduleEvent();
+            const nextEvent = this.nextEvent;
+
+            switch (nextEvent.type) {
+                case 'tempo':
+                    console.log('Tempo change! ', this.nextEvent.bpm);
+                    this.millisecondsPerBeat = 60000 / this.nextEvent.bpm;
+                    break;
+                case 'noteOn':
+                    this.currentNotes.push(nextEvent.pitch);
+                    this.midiOutput.send([0x90, nextEvent.pitch, 100], this.nextEventTime);
+                    break;
+                case 'noteOff':
+                    this.currentNotes.splice(this.currentNotes.indexOf(nextEvent.pitch), 1);
+                    this.midiOutput.send([0x80, nextEvent.pitch, 0], this.nextEventTime);
+                    break;
+                case 'computed':
+                    nextEvent.callback(this.eventBuffer);
+                    break;
+                case 'stop':
+                    this.stop();
+                    this.sendTransporterState();
+                    break;
+                default:
+                    console.error(`Unknown event type: ${nextEvent.type}`);
+                    break;
+            }
+
+            this.getNextEvent();
         }
     }
-
-    scheduleEvent() {
-        const nextEvent = this.nextEvent;
-
-        switch (nextEvent.type) {
-            case 'tempo':
-                this.millisecondsPerBeat = 60000 / this.nextEvent.bpm;
-                break;
-            case 'noteOn':
-                this.currentNotes.push(nextEvent.pitch);
-                this.midiOutput.send([0x90, nextEvent.pitch, 100], this.nextEventTime);
-                break;
-            case 'noteOff':
-                this.currentNotes.splice(this.currentNotes.indexOf(nextEvent.pitch), 1);
-                this.midiOutput.send([0x80, nextEvent.pitch, 0], this.nextEventTime);
-                break;
-            case 'computed':
-                nextEvent.callback(this.eventBuffer);
-                break;
-            case 'stop':
-                this.stop();
-                this.sendTransporterState();
-                break;
-            default:
-                console.error(`Unknown event type: ${nextEvent.type}`);
-                break;
-        }
-
-        this.getNextEvent();
-    }
-
 
     // This is called by the mediator to set the mediator
     assignMediator(mediator) {
@@ -133,7 +129,7 @@ export default class Leader {
     play() {
         this.currentState = 'playing';
 
-        this.startTime = window.performance.now();
+        this.startTime = window.performance.now() + this.schedulerWindowSize;
 
         this.schedulerWorker.postMessage('start');
 
@@ -162,7 +158,7 @@ export default class Leader {
         this.startTime = window.performance.now() - this.elapsedTime;
 
         for (const note of this.currentNotes) {
-            this.midiOutput.send([0x90, note, 0x7f]);
+            this.midiOutput.send([0x90, note, 100]);
         }
 
         this.schedulerWorker.postMessage('start');

@@ -11,7 +11,7 @@ transporter.start(transporterDiv);
 
 const controller = new Controller();
 const controllerDiv = document.querySelector('#controller');
-controller.start(controllerDiv, 3);
+controller.start(controllerDiv, 1);
 
 const leader = new Leader();
 

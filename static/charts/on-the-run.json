@@ -2,204 +2,53 @@
     "title": "On the Run",
     "scriptName": "repeater",
     "score": [
-        [
-            {
-                "type": "tempo",
-                "bpm": 100
-            },
-            []
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "E2",
-                "duration": 0.2
-            },
-            [
-                0,
-                0,
-                0
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "G2",
-                "duration": 0.2
-            },
-            [
-                0,
-                0,
-                1
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "A2",
-                "duration": 0.2
-            },
-            [
-                0,
-                0,
-                2
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "G2",
-                "duration": 0.2
-            },
-            [
-                0,
-                0,
-                3
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "D3",
-                "duration": 0.2
-            },
-            [
-                0,
-                1,
-                0
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "C3",
-                "duration": 0.2
-            },
-            [
-                0,
-                1,
-                1
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "D3",
-                "duration": 0.2
-            },
-            [
-                0,
-                1,
-                2
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "E3",
-                "duration": 0.2
-            },
-            [
-                0,
-                1,
-                3
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "E2",
-                "duration": 0.2
-            },
-            [
-                0,
-                2,
-                0
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "G2",
-                "duration": 0.2
-            },
-            [
-                0,
-                2,
-                1
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "A2",
-                "duration": 0.2
-            },
-            [
-                0,
-                2,
-                2
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "G2",
-                "duration": 0.2
-            },
-            [
-                0,
-                2,
-                3
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "D3",
-                "duration": 0.2
-            },
-            [
-                0,
-                3,
-                0
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "C3",
-                "duration": 0.2
-            },
-            [
-                0,
-                3,
-                1
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "D3",
-                "duration": 0.2
-            },
-            [
-                0,
-                3,
-                2
-            ]
-        ],
-        [
-            {
-                "type": "note",
-                "pitch": "E3",
-                "duration": 0.2
-            },
-            [
-                0,
-                3,
-                3
-            ]
-        ]
+        {
+            "type": "note",
+            "time": "0:0:0",
+            "pitch": "E2",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:0:1",
+            "pitch": "G2",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:0:2",
+            "pitch": "A2",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:0:3",
+            "pitch": "G2",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:1:0",
+            "pitch": "D3",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:1:1",
+            "pitch": "C3",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:1:2",
+            "pitch": "D3",
+            "duration": "16n"
+        },
+        {
+            "type": "note",
+            "time": "0:1:3",
+            "pitch": "E3",
+            "duration": "16n"
+        }
     ]
 }
