@@ -1,4 +1,31 @@
+WORK ON 1 (ONE) THING AT A TIME
+WHATEVER YOU ARE DOING, ASK IF YOU HAVE TO DO IT
+JUST MAKE SOMETHING THAT WORKS - how do you eat an elephant?
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+LIST OF STUFF TO DO (sorted by difficulty)
+
+- Migrate repo to "live-synth-web-version"
+- Come up with ultimate pitch-name-to-midi-number converter
+- Make note events in the score and noteOn events in the buffer have associated velocities
+- Find way to make workers not rely on separate server call
+- 8 step sequencer chart and script
+- Implement scheduled tempo changes
+- Implement different time signatures
+- Multiple parts per chart (behemoth of a task)
+- Integrate musicXML parser (need to have multiple parts per chart first)
+- Communication between scripts (need to have multiple parts per chart first)
+- Ways of simplifying dummy script (need to explore what I find myself constantly doing in scripts)
+- Integrate Lua compiler & VM (ugly ass packages)
+- Integrate "live-synth-show-assets" git submodule for static files
+- Better OO design (I need to talk to someone who knows it, because I am only as good as I am)
+- Record performance button (very low priority)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
 SCORE EVENTS
+
 The design of the score is to maximize ease in reading/writing
 Every score event has a type and a time (tone.js time units, etc: 3, "2n", "5:0:1", { "1m": 5, "16n": 4 })
 Types of events:
@@ -9,7 +36,10 @@ Types of events:
     - duration (tone.js time units)
 - stop
 
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
 EVENT BUFFER EVENTS
+
 The design of the event buffer is to minimize compute time
 Every event in the event buffer has a type and a position (number-of-beats-into-the-song units)
 Types of events:
@@ -23,13 +53,9 @@ Types of events:
     - callback (takes in event buffer and modifies it)
 - stop
 
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
-Stuff to do next:
-- Multiple parts per chart
-- Ways of simplifying dummy script
-- 8 step sequencer
-- Find way to make workers not rely on separate server call
-- Integrate Lua interpreter and musicXML parser
+WHAT THE PROGRAM DOES
 
 The program starts
 We create the transporter
@@ -37,3 +63,24 @@ We create the leader
 We connect the transporter and the leader to each other
 We load the setlist to the leader
 The leader sees what part and script it needs
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+BLOG START
+
+I know I gotta do the multiple parts, but there is a lot of other stuff I may have to do.
+Things I think I will have to do for multiple parts:
+- Rewrite the charts to have a parts section à la musicXML (too easy :D)
+- Figure out if the sequencer should gather all of the parts requirements on startup or as needed ("needed" according to a chart)
+    - If it gathers all of them in the beginning, then I will need to come up with canonical names for each part (again, too easy :D)
+    - If it requires them all at the beginning, what if I want to test a chart that only needs one part
+    - I could make a dialog that pops up, to figure things out
+        - What we will set up for each part
+            -If we want the midi output to be:
+                - A real device with associated channel
+                - Nothing
+            - If we want the controller to be:
+                - On the page in a controllers div
+                - From a MIDI device
+                - Invisible, and just randomized (for when we want to be lazy :P)
+                - From a websocket connection, this needs to generate a QR code or IP address or something (VERY BIG PICTURE)
