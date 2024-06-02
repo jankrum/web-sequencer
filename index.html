@@ -9,9 +9,185 @@
 </head>
 
 <body>
-    <div id="transporter"></div>
+    <!-- <dialog open>
+        <form action="dialog">
+            <div id="all-parts-options">
+                <div id="bass-part-options">
+                    <h3>Bass</h3>
+                    <div class="synth-options">
+                        <input type="checkbox" name="has-bass-synth" id="has-bass-synth" checked>
+                        <label for="bass-synth-select">Synthesizer:&nbsp;</label>
+                        <select name="bass-synth-select" id="bass-synth-select">
+                            <option value="SequencerToBass">SequencerToBass</option>
+                            <option value="SequencerToDrum">SequencerToDrum</option>
+                            <option value="SequencerToChord">SequencerToChord</option>
+                            <option value="SequencerToLead">SequencerToLead</option>
+                        </select>
+                        <label for="bass-synth-channel-input">Channel:&nbsp;</label>
+                        <input type="number" name="bass-synth-channel-input" id="bass-synth-channel-input" min="1"
+                            max="16" value="1">
+                    </div>
+                    <hr>
+                    <div class="controller-options">
+                        <div class="controller-types">
+                            <h4>Controller Type</h4>
+                            <label>
+                                <input type="radio" name="bass-controller-type" id="hidden-bass-controller"
+                                    value="hidden">
+                                Hidden
+                            </label>
+                            <label>
+                                <input type="radio" name="bass-controller-type" id="on-page-bass-controller"
+                                    value="on-page" checked>
+                                On page
+                            </label>
+                            <label>
+                                <input type="radio" name="bass-controller-type" id="midi-bass-controller" value="midi">
+                                MIDI
+                            </label>
+                            <label>
+                                <input type="radio" name="bass-controller-type" id="websocket-bass-controller"
+                                    value="websocket">
+                                Websocket
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="drum-part-options">
+                    <h3>Drum</h3>
+                    <div class="synth-options">
+                        <input type="checkbox" name="has-drum-synth" id="has-drum-synth" checked>
+                        <label for="drum-synth-select">Synthesizer:&nbsp;</label>
+                        <select name="drum-synth-select" id="drum-synth-select">
+                            <option value="SequencerToDrum">SequencerToDrum</option>
+                            <option value="SequencerToBass">SequencerToBass</option>
+                            <option value="SequencerToChord">SequencerToChord</option>
+                            <option value="SequencerToLead">SequencerToLead</option>
+                        </select>
+                        <label for="drum-synth-channel-input">Channel:&nbsp;</label>
+                        <input type="number" name="drum-synth-channel-input" id="drum-synth-channel-input" min="1"
+                            max="16" value="1">
+                    </div>
+                    <hr>
+                    <div class="controller-options">
+                        <div class="controller-types">
+                            <h4>Controller Type</h4>
+                            <label>
+                                <input type="radio" name="drum-controller-type" id="hidden-drum-controller"
+                                    value="hidden" checked>
+                                Hidden
+                            </label>
+                            <label>
+                                <input type="radio" name="drum-controller-type" id="on-page-drum-controller"
+                                    value="on-page">
+                                On page
+                            </label>
+                            <label>
+                                <input type="radio" name="drum-controller-type" id="midi-drum-controller" value="midi">
+                                MIDI
+                            </label>
+                            <label>
+                                <input type="radio" name="drum-controller-type" id="websocket-drum-controller"
+                                    value="websocket">
+                                Websocket
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="chord-part-options">
+                    <h3>Chord</h3>
+                    <div class="synth-options">
+                        <input type="checkbox" name="has-chord-synth" id="has-chord-synth" checked>
+                        <label for="chord-synth-select">Synthesizer:&nbsp;</label>
+                        <select name="chord-synth-select" id="chord-synth-select">
+                            <option value="SequencerToChord">SequencerToChord</option>
+                            <option value="SequencerToBass">SequencerToBass</option>
+                            <option value="SequencerToDrum">SequencerToDrum</option>
+                            <option value="SequencerToLead">SequencerToLead</option>
+                        </select>
+                        <label for="chord-synth-channel-input">Channel:&nbsp;</label>
+                        <input type="number" name="chord-synth-channel-input" id="chord-synth-channel-input" min="1"
+                            max="16" value="1">
+                    </div>
+                    <hr>
+                    <div class="controller-options">
+                        <div class="controller-types">
+                            <h4>Controller Type</h4>
+                            <label>
+                                <input type="radio" name="chord-controller-type" id="hidden-chord-controller"
+                                    value="hidden">
+                                Hidden
+                            </label>
+                            <label>
+                                <input type="radio" name="chord-controller-type" id="on-page-chord-controller"
+                                    value="on-page" checked>
+                                On page
+                            </label>
+                            <label>
+                                <input type="radio" name="chord-controller-type" id="midi-chord-controller"
+                                    value="midi">
+                                MIDI
+                            </label>
+                            <label>
+                                <input type="radio" name="chord-controller-type" id="websocket-chord-controller"
+                                    value="websocket">
+                                Websocket
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="lead-part-options">
+                    <h3>Lead</h3>
+                    <div class="synth-options">
+                        <input type="checkbox" name="has-lead-synth" id="has-lead-synth" checked>
+                        <label for="lead-synth-select">Synthesizer:&nbsp;</label>
+                        <select name="lead-synth-select" id="lead-synth-select">
+                            <option value="SequencerToLead">SequencerToLead</option>
+                            <option value="SequencerToBass">SequencerToBass</option>
+                            <option value="SequencerToDrum">SequencerToDrum</option>
+                            <option value="SequencerToChord">SequencerToChord</option>
+                        </select>
+                        <label for="lead-synth-channel-input">Channel:&nbsp;</label>
+                        <input type="number" name="lead-synth-channel-input" id="lead-synth-channel-input" min="1"
+                            max="16" value="1">
+                    </div>
+                    <hr>
+                    <div class="controller-options">
+                        <div class="controller-types">
+                            <h4>Controller Type</h4>
+                            <label>
+                                <input type="radio" name="lead-controller-type" id="hidden-lead-controller"
+                                    value="hidden">
+                                Hidden
+                            </label>
+                            <label>
+                                <input type="radio" name="lead-controller-type" id="on-page-lead-controller"
+                                    value="on-page" checked>
+                                On page
+                            </label>
+                            <label>
+                                <input type="radio" name="lead-controller-type" id="midi-lead-controller" value="midi">
+                                MIDI
+                            </label>
+                            <label>
+                                <input type="radio" name="lead-controller-type" id="websocket-lead-controller"
+                                    value="websocket">
+                                Websocket
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="checkbox" name="remember-checkbox" id="remember-checkbox">
+            <label for="remember-checkbox">Don't Ask Again</label>
+            <button>Close</button>
+            <button type="submit">Save</button>
+        </form>
+    </dialog> -->
+
+    <!-- <div id="transporter"></div>
     <hr>
-    <div id="controller"></div>
+    <div id="controller"></div> -->
 
     <script src="app.js" type="module"></script>
 </body>

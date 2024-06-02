@@ -84,3 +84,33 @@ Things I think I will have to do for multiple parts:
                 - From a MIDI device
                 - Invisible, and just randomized (for when we want to be lazy :P)
                 - From a websocket connection, this needs to generate a QR code or IP address or something (VERY BIG PICTURE)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+CONFIGURE
+
+In order to be a controller, you just have to be an object that implements these three methods:
+CONTROLLER.getOptionControl(prefix, options, suffix = '');
+CONTROLLER.getRangeControl(prefix, min, max, suffix = '');
+CONTROLLER.clear();
+Both 'get' methods return a reference to a computed value that can be read
+
+await getSettings() returns
+{
+    bass: {
+        midiOutput: null || MIDIOutput
+        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
+    },
+    drum: {
+        midiOutput: null || MIDIOutput
+        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
+    },
+    chord: {
+        midiOutput: null || MIDIOutput
+        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
+    },
+    lead: {
+        midiOutput: null || MIDIOutput
+        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
+    }
+}

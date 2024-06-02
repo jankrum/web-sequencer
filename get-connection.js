@@ -108,7 +108,7 @@ function askUserToChoosePort(portArray, relationshipName, getPortByName) {
 
     // Set the label text
     dialogElements.labelForSelect.textContent = `Choose a device for the "${relationshipName}" connection:`;
-    
+
     // Add options to the select element
     portArray.forEach(port => {
         const option = document.createElement('option');

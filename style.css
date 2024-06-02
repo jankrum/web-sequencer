@@ -11,6 +11,37 @@ hr {
     width: 100%;
 }
 
+#all-parts-options {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 100%;
+}
+
+#all-parts-options>div {
+    padding: 10px;
+    border: 1px solid grey;
+}
+
+.synth-options {
+    display: flex;
+    flex-direction: row;
+}
+
+.controller-types {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+}
+
+.controller-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 #transporter {
     display: flex;
     flex-direction: column;
