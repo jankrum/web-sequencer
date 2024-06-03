@@ -7,6 +7,18 @@
 // I won't do any styling here, that will be handled in a separate file.
 // There will be a class for the dialog and form, which we will use to hold objects related to specific parts of the band.
 
+// Reevaluating what the point of this script is
+// The point is to get the information we need to start the app
+// Currently, we need to know the information for all the parts
+// We need to know how to talk to each part's synthesizer, which means we need to know the midi output and the channel
+// We also need to know how to talk to each part's controller, which means we need to know the type of controller and any details for that type
+// This information could already be stored in local storage, so the first thing we do is check for that
+// If there is information in local storage, we need to resolve midi port names to midi ports
+// If it's not there, we display a dialog that asks for the information
+// The dialog will contain a form with a label, a select element, and a submit button
+
+
+
 function capitalizeFirstLetter(text) {
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -29,7 +41,7 @@ class SynthOptions {
         hasSynthCheckbox.id = `has-${name}-synth`;
         hasSynthCheckbox.checked = true;
         label.innerHTML = 'Synthesizer:&nbsp;';
-        label.htmlFor = select.id;
+        label.htmlFor = hasSynthCheckbox.id;
         select.name = `${name}-synth-select`;
         select.id = `${name}-synth-select`;
         optionA.value = 'a';
@@ -90,10 +102,10 @@ class ControllerTypes {
         div.appendChild(header);
 
         const types = [
-            { name: 'hidden', label: 'Hidden' },
             { name: 'on-page', label: 'On page' },
-            { name: 'midi', label: 'MIDI' },
-            { name: 'websocket', label: 'Websocket' }
+            { name: 'hidden', label: 'Hidden' }
+            // { name: 'midi', label: 'MIDI' },
+            // { name: 'websocket', label: 'Websocket' }
         ];
 
         types.forEach(type => {
@@ -115,73 +127,126 @@ class ControllerTypes {
     }
 }
 
-class ControllerSpecifics {
-    constructor() {
-        const div = this.div = document.createElement('div');
-        const hiddenDiv = this.hiddenDiv = document.createElement('div');
-        const onPageDiv = this.onPageDiv = document.createElement('div');
-        const midiDiv = this.midiDiv = document.createElement('div');
-        const websocketDiv = this.websocketDiv = document.createElement('div');
+class OnPageController {
+    constructor(name) {
+        this.name = name;
 
-        const hiddenHeader = document.createElement('h4');
-        const onPageHeader = document.createElement('h4');
-        const midiHeader = document.createElement('h4');
-        const websocketHeader = document.createElement('h4');
+        this.numberOfModules = 0;
+        this.controllerModules = [];
+        this.allocatedModules = 0;
+    }
 
-        hiddenHeader.textContent = 'Hidden';
-        onPageHeader.textContent = 'On page';
-        midiHeader.textContent = 'MIDI';
-        websocketHeader.textContent = 'Websocket';
-        hiddenDiv.classList.add('hidden-specifics');
-        onPageDiv.classList.add('on-page-specifics');
-        midiDiv.classList.add('midi-specifics');
-        websocketDiv.classList.add('websocket-specifics');
+    start(parentDiv, numberOfModules) { }
 
-        hiddenDiv.style.display = 'block';
-        onPageDiv.style.display = 'none';
-        midiDiv.style.display = 'none';
-        websocketDiv.style.display = 'none';
+    getUnallocatedModule() {
+        if (this.allocatedModules >= this.numberOfModules) {
+            const errorMessage = `Out of modules to allocate! Allocated ${this.allocatedModules} of ${this.numberOfModules} modules.`;
+            throw new Error(errorMessage);
+        }
 
-        hiddenDiv.appendChild(hiddenHeader);
-        onPageDiv.appendChild(onPageHeader);
-        midiDiv.appendChild(midiHeader);
-        websocketDiv.appendChild(websocketHeader);
-        div.append(hiddenDiv, onPageDiv, midiDiv, websocketDiv);
+        this.allocatedModules += 1;
     }
 }
+
+class HiddenController {
+    constructor() {
+        this.numberOfModules = 12;
+        this.allocatedModules = 0;
+    }
+
+    getUnallocatedModule() {
+        if (this.allocatedModules >= this.numberOfModules) {
+            const errorMessage = `Out of modules to allocate! Allocated ${this.allocatedModules} of ${this.numberOfModules} modules.`
+            throw new Error(errorMessage);
+        }
+
+        this.allocatedModules += 1;
+    }
+
+    getRangeControl(_, min, max, __ = '') {
+        this.getUnallocatedModule();
+
+        const value = Math.floor(Math.random() * (max - min)) + min;
+
+        return { value };
+    }
+
+    getOptionControl(_, options, __ = '') {
+        this.getUnallocatedModule();
+
+        const value = options[Math.floor(Math.random() * options.length)];
+
+        return { value };
+    }
+
+    clear() {
+        this.allocatedModules = 0;
+    }
+}
+
+// class ControllerSpecifics {
+//     constructor() {
+//         const div = this.div = document.createElement('div');
+//         const hiddenDiv = this.hiddenDiv = document.createElement('div');
+//         const onPageDiv = this.onPageDiv = document.createElement('div');
+//         const midiDiv = this.midiDiv = document.createElement('div');
+//         const websocketDiv = this.websocketDiv = document.createElement('div');
+
+//         const hiddenHeader = document.createElement('h4');
+//         const onPageHeader = document.createElement('h4');
+//         const midiHeader = document.createElement('h4');
+//         const websocketHeader = document.createElement('h4');
+
+//         hiddenHeader.textContent = 'Hidden';
+//         onPageHeader.textContent = 'On page';
+//         midiHeader.textContent = 'MIDI';
+//         websocketHeader.textContent = 'Websocket';
+//         hiddenDiv.classList.add('hidden-specifics');
+//         onPageDiv.classList.add('on-page-specifics');
+//         midiDiv.classList.add('midi-specifics');
+//         websocketDiv.classList.add('websocket-specifics');
+
+//         hiddenDiv.style.display = 'block';
+//         onPageDiv.style.display = 'none';
+//         midiDiv.style.display = 'none';
+//         websocketDiv.style.display = 'none';
+
+//         hiddenDiv.appendChild(hiddenHeader);
+//         onPageDiv.appendChild(onPageHeader);
+//         midiDiv.appendChild(midiHeader);
+//         websocketDiv.appendChild(websocketHeader);
+//         div.append(hiddenDiv, onPageDiv, midiDiv, websocketDiv);
+//     }
+// }
 
 class ControllerOptions {
     constructor(name) {
         const div = this.div = document.createElement('div');
         const typesDiv = new ControllerTypes(name);
-        const controllerSpecifics = this.specificsDiv = new ControllerSpecifics();
 
         div.classList.add('controller-options');
 
-        typesDiv.radioButtons.forEach(radioButton => {
-            const value = radioButton.value;
-            const specificDiv = controllerSpecifics.div.querySelector(`.${value}-specifics`);
-            radioButton.addEventListener('change', () => {
-                if (radioButton.checked) {
-                    controllerSpecifics.div.querySelectorAll('div').forEach(genericDiv => {
-                        genericDiv.style.display = 'none';
-                    });
-                    specificDiv.style.display = 'block';
-                }
-            });
-        });
-
-        div.append(typesDiv.div, controllerSpecifics.div);
+        div.appendChild(typesDiv.div);
     }
 
     get value() {
-        return {
-            controller: {
-                setMeUpBitch: () => {
-                    console.log('FUCK YOU');
+        const type = this.div.querySelector('input[type="radio"]:checked').value;
+
+        switch (type) {
+            case 'on-page':
+                const onPageController = new OnPageController(this.name);
+                const controllerDiv = document.querySelector('#controllerDiv');
+                onPageController.start();
+                return {
+                    controller: onPageController
+                };
+            case 'hidden':
+                return {
+                    controller: new HiddenController()
                 }
-            }
-        };
+            default:
+                break;
+        }
     }
 }
 
@@ -209,15 +274,18 @@ class PartOptions {
     }
 }
 
-class ButtonDiv {
+class BottomDiv {
     constructor() {
         const div = this.div = document.createElement('div');
+        const rememberDiv = document.createElement('div');
         const rememberCheckbox = this.rememberCheckbox = document.createElement('input');
         const labelForCheckbox = document.createElement('label');
+        const buttonDiv = document.createElement('div');
         const cancelButton = this.cancelButton = document.createElement('button');
         const refreshButton = this.refreshButton = document.createElement('button');
         const submitButton = this.submitButton = document.createElement('button');
 
+        div.id = 'bottom-div';
         rememberCheckbox.type = 'checkbox';
         rememberCheckbox.name = 'remember-checkbox';
         rememberCheckbox.id = 'remember-checkbox';
@@ -227,7 +295,9 @@ class ButtonDiv {
         refreshButton.textContent = 'Refresh';
         submitButton.textContent = 'Submit';
 
-        div.append(rememberCheckbox, labelForCheckbox, cancelButton, refreshButton, submitButton);
+        rememberDiv.append(rememberCheckbox, labelForCheckbox);
+        buttonDiv.append(cancelButton, refreshButton, submitButton);
+        div.append(rememberDiv, buttonDiv);
     }
 }
 
@@ -236,7 +306,7 @@ class SettingsDialog {
         const dialog = this.dialog = document.createElement('dialog');
         const form = document.createElement('form');
         const allPartsDiv = document.createElement('div');
-        const buttonDiv = this.buttonDiv = new ButtonDiv();
+        const bottomDiv = this.bottomDiv = new BottomDiv();
 
         const allPartNames = ['bass', 'drum', 'chord', 'lead'];
         const allParts = this.allParts = allPartNames.map(partName => new PartOptions(partName));
@@ -252,7 +322,7 @@ class SettingsDialog {
             allPartsDiv.appendChild(part.div);
         });
 
-        form.append(allPartsDiv, buttonDiv.div);
+        form.append(allPartsDiv, bottomDiv.div);
         dialog.appendChild(form);
         document.body.appendChild(dialog);
     }
@@ -265,16 +335,16 @@ class SettingsDialog {
 
     makePromise() {
         return new Promise((resolve, reject) => {
-            this.buttonDiv.cancelButton.addEventListener('click', () => {
+            this.bottomDiv.cancelButton.addEventListener('click', () => {
                 this.dialog.close('canceled');
                 reject('canceled');
             });
 
-            this.buttonDiv.submitButton.addEventListener('click', () => {
+            this.bottomDiv.submitButton.addEventListener('click', () => {
                 this.dialog.close('submitted');
                 const settings = this.value;
 
-                if (this.buttonDiv.rememberCheckbox) {
+                if (this.bottomDiv.rememberCheckbox) {
                     localStorage.setItem('settings', JSON.stringify(settings));
                 }
 
@@ -287,14 +357,55 @@ class SettingsDialog {
     }
 }
 
-export default async function getSettings() {
-    // const storedSettings = localStorage.getItem('settings');
+Object.prototype.asyncMap = async function (callback) {
+    const entries = Object.entries(this);
+    const mappedEntries = await Promise.all(entries.map(callback));
+    return Object.fromEntries(mappedEntries);
+}
 
-    // if (storedSettings) {
-    //     const settings = JSON.parse(storedSettings);
-    //     return settings;
-    // }
+async function getBandFromSettings(settingsObj, midiAccessObj) {
+    async function getSynthInformation(synthSettings) {
+        const { deviceName, channel } = synthSettings;
+        const midiOutput = midiAccessObj.outputs.get(deviceName);
+        return { midiOutput, channel };
+    }
 
+    async function getPartInformation([partName, partSettings]) {
+        const { hasSynth, synth, controller } = partSettings;
+
+        const synthResult = hasSynth ? await getSynthInformation(synth) : {};
+        const controllerResult = 1;
+
+        const partInformation = Object.assign({}, synthResult, controllerResult);
+
+        return [partName, partInformation];
+    }
+
+    return {
+        parts: await settingsObj.parts.asyncMap(getPartInformation)
+    };
+}
+
+export default async function makeBand() {
+    const midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+
+    // Check if there are settings in local storage
+    const storedSettings = localStorage.getItem('settings');
+
+    // If there are settings in local storage, use them
+    if (storedSettings) {
+        try {
+            // If we can parse the settings and get a band from them, return the band
+            const settings = JSON.parse(storedSettings);
+            const bandFromSettings = await getBandFromSettings(settings, midiAccess);
+            return bandFromSettings;
+        } catch (error) {
+            // If we can't then delete the stored settings
+            localStorage.removeItem('settings');
+        }
+    }
+
+    // If there are no settings, or if they were bad, open a dialog to get the new settings
     const dialog = new SettingsDialog();
     return dialog.makePromise();
 }

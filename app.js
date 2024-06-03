@@ -23,7 +23,7 @@
 
 // console.log('%cReady!', 'background-color: green; color: white;');
 
-import getSettings from './get-settings.js';
+import getBand from './make-band.js';
 
-const settings = await getSettings();
-console.log(settings);
+const band = await getBand();
+console.log(band);

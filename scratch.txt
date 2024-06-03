@@ -95,22 +95,82 @@ CONTROLLER.getRangeControl(prefix, min, max, suffix = '');
 CONTROLLER.clear();
 Both 'get' methods return a reference to a computed value that can be read
 
-await getSettings() returns
+await makeBand() returns:
 {
-    bass: {
-        midiOutput: null || MIDIOutput
-        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
-    },
-    drum: {
-        midiOutput: null || MIDIOutput
-        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
-    },
-    chord: {
-        midiOutput: null || MIDIOutput
-        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
-    },
-    lead: {
-        midiOutput: null || MIDIOutput
-        controller: onPageController || midiController || invisibleAndRandomizedController || websocketController
+    parts: {
+        bass: {
+            ?synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: CONTROLLER OBJ
+        },
+        drum: {
+            ?synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: CONTROLLER OBJ
+        },
+        chord: {
+            ?synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: CONTROLLER OBJ
+        },
+        lead: {
+            ?synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: CONTROLLER OBJ
+        },
+    }
+}
+
+it depends on a settings object we store in local storage, it looks like this:
+{
+    parts: {
+        bass: {
+            hasSynth: true | false,
+            synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: {
+                type: 'onPage' || 'hidden'
+            }
+        },
+        drum: {
+            hasSynth: true | false,
+            synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: {
+                type: 'onPage' || 'hidden'
+            }
+        },
+        chord: {
+            hasSynth: true | false,
+            synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: {
+                type: 'onPage' || 'hidden'
+            }
+        },
+        lead: {
+            hasSynth: true | false,
+            synth: {
+                deviceName: 'blah',
+                channel: 1
+            },
+            controller: {
+                type: 'onPage' || 'hidden'
+            }
+        },
     }
 }

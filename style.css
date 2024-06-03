@@ -42,6 +42,13 @@ hr {
     justify-content: space-between;
 }
 
+#bottom-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
 #transporter {
     display: flex;
     flex-direction: column;
