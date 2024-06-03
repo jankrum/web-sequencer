@@ -38,3 +38,14 @@ export function dumbStringToState(dumbString) {
     const title = dumbString.slice(1);
     return { canPrevious, canNext, state, title };
 }
+
+export function documentMake(tag, properties, children = []) {
+    const element = document.createElement(tag);
+    Object.assign(element, properties);
+    children.forEach(child => element.append(child));
+    return element;
+}
+
+export function doTimes(times, action) {
+    return Array.from({ length: times }).map(action);
+}

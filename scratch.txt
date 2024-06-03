@@ -174,3 +174,20 @@ it depends on a settings object we store in local storage, it looks like this:
         },
     }
 }
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+The sequencer has a transporter and a band
+The band has a leader and parts
+The parts have bass, drum, chord, and lead parts
+Each part has a synth and a controller
+
+
+
+The Ankrum Javascript Object Philosophy
+
+Constructors are synchronous and only define what fields the methods reference between each other and what their children reference
+(I don't like surprises)
+
+If an object or its children need asynchronous code, or if you modify the DOM, then you make a start function

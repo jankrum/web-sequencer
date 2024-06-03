@@ -57,19 +57,19 @@ hr {
 }
 
 #transporter>p,
-.control-module>label>span {
+.controller-module>label>span {
     font-size: xx-large;
     font-family: monospace;
 }
 
-.control-module {
+.controller-module {
     width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.control-module>input {
+.controller-module>input {
     width: 100%;
     margin: 10px 0;
     padding: 5px;
