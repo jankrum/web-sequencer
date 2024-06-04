@@ -16,9 +16,12 @@ export default class Transporter {
 
     /**
      * Receives the state from the leader and updates the transporter elements
-     * @param {Object} param0 - The state object from the leader
+     * @param {string} title - The title to display
+     * @param {boolean} canPrevious - Whether the previous button should be enabled
+     * @param {string} transporterState - The state of the transporter
+     * @param {boolean} canNext - Whether the next button should be enabled
      */
-    receiveState({ title, canPrevious, transporterState, canNext }) {
+    receiveState(title, canPrevious, transporterState, canNext) {
         this.titleDisplay.innerText = title;
         this.previousButton.disabled = !canPrevious;
         switch (transporterState) {
@@ -49,24 +52,25 @@ export default class Transporter {
      * @param {HTMLDivElement} parentDiv - The div to append the transporter elements to
      */
     start(parentDiv) {
-        // Make the elements and append them to the parent div
-        parentDiv.append(
-            this.titleDisplay = documentMake('p', { innerText: '%%EMPTY%%' }),
-            documentMake('div', {}, [
-                this.previousButton = documentMake('button', { innerText: '<-', disabled: true }),
-                this.playButton = documentMake('button', { innerText: 'Play', disabled: true }),
-                this.pauseButton = documentMake('button', { innerText: 'Pause', disabled: true }),
-                this.resumeButton = documentMake('button', { innerText: 'Resume', disabled: true }),
-                this.stopButton = documentMake('button', { innerText: 'Stop', disabled: true }),
-                this.nextButton = documentMake('button', { innerText: '->', disabled: true })
-            ])
-        );
+        const buttons = [
+            this.previousButton = documentMake('button', { value: 'previous', innerText: '<-', disabled: true }),
+            this.playButton = documentMake('button', { value: 'play', innerText: 'Play', disabled: true }),
+            this.pauseButton = documentMake('button', { value: 'pause', innerText: 'Pause', disabled: true }),
+            this.resumeButton = documentMake('button', { value: 'resume', innerText: 'Resume', disabled: true }),
+            this.stopButton = documentMake('button', { value: 'stop', innerText: 'Stop', disabled: true }),
+            this.nextButton = documentMake('button', { value: 'next', innerText: '->', disabled: true })
+        ];
 
-        // Sends the button press to the leader through the mediator
-        ['previous', 'play', 'pause', 'resume', 'stop', 'next'].forEach(action => {
-            this[`${action}Button`].addEventListener('mousedown', () => {
-                this.sequencer.leader.sendButtonPressedFromTransporterToLeader(action);
+        buttons.forEach(button => {
+            const { value } = button;
+            button.addEventListener('mousedown', () => {
+                this.sequencer.leader.sendButtonPressedFromTransporterToLeader(value);
             });
         });
+
+        parentDiv.append(
+            this.titleDisplay = documentMake('p', { innerText: '%%EMPTY%%' }),
+            documentMake('div', {}, buttons)
+        );
     }
 }
