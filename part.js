@@ -1,26 +1,16 @@
-import { doTimes, documentMake } from "./utility.js";
+import Controller from './controller.js';
 
 export default class Part {
     constructor(sequencer, name) {
         this.sequencer = sequencer;
         this.name = name;
+        this.controller = null;
     }
 
-    async start(controllerDiv) {
+    async start(controllerSectionDiv) {
         const name = this.name;
 
-        // Make the elements and append them to the parent div
-        controllerDiv.append(
-            documentMake('div', { id: `${name}-controller` }, doTimes(12, index =>
-                documentMake('div', { id: `${name}-module-${index}`, className: 'controller-module' }, [
-                    documentMake('label', {}, [
-                        documentMake('span', { innerText: '%%' }),
-                        documentMake('span', { innerText: 'EMPTY' }),
-                        documentMake('span', { innerText: '%%' }),
-                    ]),
-                    documentMake('input', { type: 'range', min: 0, max: 127, value: 63 })
-                ])
-            ))
-        );
+        const controller = this.controller = new Controller(this);
+        controller.start(controllerSectionDiv, name);
     }
 }

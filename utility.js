@@ -46,6 +46,10 @@ export function documentMake(tag, properties, children = []) {
     return element;
 }
 
-export function doTimes(times, action) {
-    return Array.from({ length: times }).map(action);
+export function timesDo(length, action) {
+    return Array.from({ length }).map(action);
+}
+
+export function capitalizeFirstLetter(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }

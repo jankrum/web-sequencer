@@ -16,7 +16,7 @@ export default class Sequencer {
      * @param {HTMLDivElement} transporterDiv - The div to append the transporter elements to
      * @param {HTMLDivElement} controllerDiv - The div to append the controller elements to
      */
-    async start(transporterDiv, controllerDiv) {
+    async start(transporterDiv, controllerSectionDiv) {
         const transporter = this.transporter = new Transporter(this);
         const parts = this.parts = [
             new Part(this, 'bass'),
@@ -26,8 +26,10 @@ export default class Sequencer {
         ];
         // const leader = this.leader = new Leader(this);
 
+        // const midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+
         transporter.start(transporterDiv);
-        await Promise.all(parts.map(part => part.start(controllerDiv)));
+        await Promise.all(parts.map(part => part.start(controllerSectionDiv)));
         // await leader.start();
     }
 }
