@@ -21,7 +21,7 @@ export default class Transporter {
      * @param {string} transporterState - The state of the transporter
      * @param {boolean} canNext - Whether the next button should be enabled
      */
-    receiveState(title, canPrevious, transporterState, canNext) {
+    sendState(title, canPrevious, transporterState, canNext) {
         this.titleDisplay.innerText = title;
         this.previousButton.disabled = !canPrevious;
         switch (transporterState) {
@@ -64,7 +64,7 @@ export default class Transporter {
         buttons.forEach(button => {
             const { value } = button;
             button.addEventListener('mousedown', () => {
-                this.sequencer.leader.sendButtonPressedFromTransporterToLeader(value);
+                this.sequencer.leader.sendButtonPress(value);
             });
         });
 

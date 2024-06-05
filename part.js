@@ -1,16 +1,15 @@
+import Synthesizer from './synthesizer.js';
 import Controller from './controller.js';
 
 export default class Part {
-    constructor(sequencer, name) {
+    constructor(sequencer) {
         this.sequencer = sequencer;
-        this.name = name;
-        this.controller = null;
+        this.synthesizer = new Synthesizer(this);
+        this.controller = new Controller(this);
     }
 
-    async start(controllerSectionDiv) {
-        const name = this.name;
-
-        const controller = this.controller = new Controller(this);
-        controller.start(controllerSectionDiv, name);
+    async start(name, midiAccess, controllerSectionDiv) {
+        await this.synthesizer.start(midiAccess, name);
+        this.controller.start(controllerSectionDiv, name);
     }
 }

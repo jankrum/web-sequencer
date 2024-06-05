@@ -3,10 +3,19 @@ import Part from './part.js';
 // import Leader from './leader.js';
 
 export default class Sequencer {
+    static partNames = ['bass', 'drum', 'chord', 'lead'];
+
     constructor() {
-        this.transporter = null;
-        this.parts = [];
-        this.leader = null;
+        this.transporter = new Transporter(this);
+
+        this.parts = [
+            new Part(this),
+            new Part(this),
+            new Part(this),
+            new Part(this)
+        ];
+
+        // this.leader = new Leader(this);
     }
 
     /**
@@ -17,19 +26,16 @@ export default class Sequencer {
      * @param {HTMLDivElement} controllerDiv - The div to append the controller elements to
      */
     async start(transporterDiv, controllerSectionDiv) {
-        const transporter = this.transporter = new Transporter(this);
-        const parts = this.parts = [
-            new Part(this, 'bass'),
-            new Part(this, 'drum'),
-            new Part(this, 'chord'),
-            new Part(this, 'lead')
-        ];
-        // const leader = this.leader = new Leader(this);
+        this.transporter.start(transporterDiv);
 
-        // const midiAccess = await navigator.requestMIDIAccess({ sysex: true });
+        const midiAccess = await navigator.requestMIDIAccess({ sysex: true });
 
-        transporter.start(transporterDiv);
-        await Promise.all(parts.map(part => part.start(controllerSectionDiv)));
-        // await leader.start();
+        async function startPart(part, index) {
+            return await part.start(Sequencer.partNames[index], midiAccess, controllerSectionDiv);
+        }
+
+        await Promise.all(this.parts.map(startPart));
+
+        // await this.leader.start();
     }
 }
