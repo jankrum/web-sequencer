@@ -30,11 +30,10 @@ export default class Sequencer {
 
         const midiAccess = await navigator.requestMIDIAccess({ sysex: true });
 
-        async function startPart(part, index) {
-            return await part.start(Sequencer.partNames[index], midiAccess, controllerSectionDiv);
+        for (const [index, part] of this.parts.entries()) {
+            const partName = Sequencer.partNames[index];
+            await part.start(partName, midiAccess, controllerSectionDiv);
         }
-
-        await Promise.all(this.parts.map(startPart));
 
         // await this.leader.start();
     }

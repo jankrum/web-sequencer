@@ -168,8 +168,20 @@ export default class Controller {
      * @param {string} name - The name of the controller
      */
     start(controllerSectionDiv, name) {
+        const checkbox = documentMake('input', { type: 'checkbox', id: `${name}-checkbox`, checked: true });
+
+        checkbox.addEventListener('click', () => {
+            const modules = controllerDiv.querySelectorAll('.controller-module');
+            for (const module of modules) {
+                module.style.display = checkbox.checked ? 'flex' : 'none';
+            }
+        });
+
         const controllerDiv = documentMake('div', { id: `${name}-controller` }, [
-            documentMake('h2', { innerText: name.toUpperCase() })
+            documentMake('div', { style: 'width: 100%; display: flex; flex-direction: row; justify-content: space-between;' }, [
+                documentMake('h2', { innerText: name.toUpperCase() }),
+                checkbox
+            ])
         ]);
 
         this.modules.forEach(module => module.start(controllerDiv));

@@ -42,7 +42,7 @@ export function dumbStringToState(dumbString) {
 export function documentMake(tag, properties, children = []) {
     const element = document.createElement(tag);
     Object.assign(element, properties);
-    children.forEach(child => element.append(child));
+    element.append(...children);
     return element;
 }
 
