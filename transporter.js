@@ -61,10 +61,10 @@ export default class Transporter {
             this.nextButton = documentMake('button', { value: 'next', innerText: '->', disabled: true })
         ];
 
-        buttons.forEach(button => {
+        buttons.forEach(({ value }) => {
             const { value } = button;
             button.addEventListener('mousedown', () => {
-                this.sequencer.leader.sendButtonPress(value);
+                this.sequencer.sendButtonPressToLeader(value);
             });
         });
 

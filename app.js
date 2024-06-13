@@ -2,8 +2,9 @@ import Sequencer from './sequencer.js';
 
 const transporterDiv = document.querySelector('#transporter');
 const controllerSectionDiv = document.querySelector('#controller');
+const pathToFilesystem = './static/';
 const sequencer = new Sequencer();
-await sequencer.start(transporterDiv, controllerSectionDiv);
+await sequencer.start(transporterDiv, controllerSectionDiv, pathToFilesystem);
 
 console.log(sequencer);
 

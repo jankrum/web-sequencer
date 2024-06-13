@@ -8,6 +8,11 @@ export default class Part {
         this.controller = new Controller(this);
     }
 
+    sendLoad(id, script, score) {
+        this.synthesizer.load(id, script);
+        this.controller.load(score);
+    }
+
     async start(name, midiAccess, controllerSectionDiv) {
         await this.synthesizer.start(midiAccess, name);
         this.controller.start(controllerSectionDiv, name);

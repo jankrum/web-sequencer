@@ -1,6 +1,6 @@
 import Transporter from './transporter.js';
 import Part from './part.js';
-// import Leader from './leader.js';
+import Leader from './leader.js';
 
 export default class Sequencer {
     static partNames = ['bass', 'drum', 'chord', 'lead'];
@@ -15,7 +15,21 @@ export default class Sequencer {
             new Part(this)
         ];
 
-        // this.leader = new Leader(this);
+        this.leader = new Leader(this);
+    }
+
+    sendButtonPressToLeader(buttonPressed) {
+        this.leader.buttonPress(buttonPressed);
+    }
+
+    sendLoadToPart(partName, id, script, score) {
+        const part = this.parts.find(part => part.name === partName);
+
+        if (!part) {
+            throw new Error(`Part ${partName} not found`);
+        }
+
+        part.load(id, script, score);
     }
 
     /**
@@ -25,7 +39,7 @@ export default class Sequencer {
      * @param {HTMLDivElement} transporterDiv - The div to append the transporter elements to
      * @param {HTMLDivElement} controllerDiv - The div to append the controller elements to
      */
-    async start(transporterDiv, controllerSectionDiv) {
+    async start(transporterDiv, controllerSectionDiv, pathToFilesystem) {
         this.transporter.start(transporterDiv);
 
         const midiAccess = await navigator.requestMIDIAccess({ sysex: true });
@@ -35,6 +49,6 @@ export default class Sequencer {
             await part.start(partName, midiAccess, controllerSectionDiv);
         }
 
-        // await this.leader.start();
+        await this.leader.start(pathToFilesystem);
     }
 }

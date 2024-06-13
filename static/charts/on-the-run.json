@@ -1,54 +1,61 @@
 {
     "title": "On the Run",
-    "scriptName": "repeater",
-    "score": [
-        {
-            "type": "note",
-            "time": "0:0:0",
-            "pitch": "E2",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:0:1",
-            "pitch": "G2",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:0:2",
-            "pitch": "A2",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:0:3",
-            "pitch": "G2",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:1:0",
-            "pitch": "D3",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:1:1",
-            "pitch": "C3",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:1:2",
-            "pitch": "D3",
-            "duration": "16n"
-        },
-        {
-            "type": "note",
-            "time": "0:1:3",
-            "pitch": "E3",
-            "duration": "16n"
+    "partList": {
+        "P1": {
+            "name": "lead",
+            "script": "repeater"
         }
-    ]
+    },
+    "scorePartwise": {
+        "P1": [
+            {
+                "type": "note",
+                "time": "0:0:0",
+                "pitch": "E2",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:0:1",
+                "pitch": "G2",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:0:2",
+                "pitch": "A2",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:0:3",
+                "pitch": "G2",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:1:0",
+                "pitch": "D3",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:1:1",
+                "pitch": "C3",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:1:2",
+                "pitch": "D3",
+                "duration": "16n"
+            },
+            {
+                "type": "note",
+                "time": "0:1:3",
+                "pitch": "E3",
+                "duration": "16n"
+            }
+        ]
+    }
 }

@@ -1,21 +1,28 @@
 {
     "title": "Hello, World!",
-    "scriptName": "dummy",
-    "score": [
-        {
-            "type": "tempo",
-            "time": 0,
-            "bpm": 60
-        },
-        {
-            "type": "note",
-            "time": 0,
-            "pitch": "C4",
-            "duration": "1m"
-        },
-        {
-            "type": "stop",
-            "time": "1m"
+    "partList": {
+        "P1": {
+            "name": "lead",
+            "script": "dummy"
         }
-    ]
+    },
+    "scorePartwise": {
+        "P1": [
+            {
+                "type": "tempo",
+                "time": 0,
+                "bpm": 60
+            },
+            {
+                "type": "note",
+                "time": 0,
+                "pitch": "C4",
+                "duration": "1m"
+            },
+            {
+                "type": "stop",
+                "time": "1m"
+            }
+        ]
+    }
 }
