@@ -53,3 +53,11 @@ export function timesDo(length, action) {
 export function capitalizeFirstLetter(text) {
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
+
+export function findOrThrow(arr, compareFunc, err) {
+    const found = arr.find(compareFunc);
+    if (found === undefined) {
+        throw new Error(err);
+    }
+    return found;
+}
