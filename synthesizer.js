@@ -59,7 +59,7 @@ export default class Synthesizer {
         }
 
         // Set the channel to the index of the output
-        const channelPromptText = `Select the channel for the synthesizer [1-16]`;
+        const channelPromptText = `Select the MIDI channel for ${name} [1-16]`;
 
         while (true) {
             const input = prompt(channelPromptText);

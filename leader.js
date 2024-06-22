@@ -231,12 +231,26 @@ async function getTextFile(path) {
 export default class Leader {
     constructor(sequencer) {
         this.sequencer = sequencer;
+
         this.pathToFilesystem = '';
 
         this.setlist = [];
         this.numberOfCharts = null;
         this.chartIndex = 0;
+
+        this.currentState = 'stopped';
+        this.startTime = null;
+        this.elapsedTime = 0;
     }
+
+    scheduler() {
+        this.sequencer.scheduleParts(window.performance.now());
+    }
+
+    play() { }
+    pause() { }
+    resume() { }
+    stop() { }
 
     async getTextFile(path) {
         const fullPath = `${this.pathToFilesystem}${path}`
