@@ -6,7 +6,6 @@ JUST MAKE SOMETHING THAT WORKS - how do you eat an elephant?
 
 LIST OF STUFF TO DO (sorted by difficulty)
 
-- Migrate repo to "live-synth-web-version"
 - Come up with ultimate pitch-name-to-midi-number converter
 - Make note events in the score and noteOn events in the buffer have associated velocities
 - Find way to make workers not rely on separate server call
@@ -183,16 +182,16 @@ The band has a leader and parts
 The parts have bass, drum, chord, and lead parts
 Each part has a synth and a controller
 
-
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
 The Ankrum Javascript Object Philosophy
 
 Constructors are synchronous and only define what fields the methods reference between each other and what their children reference
 (I don't like surprises)
 
-If you need to talk to a colleague, then your constructor should take in a reference to your mediator
+If you need to talk to another object, then your constructor should take in a reference to your mediator
 
-If an object or its children need asynchronous code, or if you modify the DOM, then you make a start function
+If an object or its children have initial values that are the results of async functions, or if you modify the DOM, then you make a start function
 
 The parent gives a child a place to modify the DOM
 

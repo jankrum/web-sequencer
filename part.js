@@ -4,12 +4,15 @@ import Controller from './controller.js';
 export default class Part {
     static schedulerWindowSize = 100;
 
-    constructor(sequencer) {
-        this.sequencer = sequencer;
+    constructor(band) {
+        this.band = band;
 
         this.id = null;
         this.script = null;
         this.score = null;
+
+        this.currentNotes = [];
+        this.eventBuffer = [];
         this.nextEventTime = 0;
         this.nextEvent = null;
 

@@ -31,7 +31,6 @@ export default class Leader {
 
         this.schedulerWindowSize = 100;
         this.schedulerWorker = new Worker('scheduler-worker.js');
-        this.schedulerWorker = new Worker('scheduler-worker.js');
         this.schedulerWorker.addEventListener('message', e => {
             if (e.data === 'tick') {
                 this.scheduler();

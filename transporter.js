@@ -4,7 +4,7 @@ export default class Transporter {
     constructor(sequencer) {
         this.sequencer = sequencer;
 
-        // Referenced by start and sendState
+        // Referenced by start and receiveState
         this.titleDisplay = null;
         this.previousButton = null;
         this.playButton = null;
@@ -15,14 +15,11 @@ export default class Transporter {
     }
 
     /**
-     * Receives the state from the leader through the
+     * Receives the state from the band through the
      * sequencer and updates the transporter elements
-     * @param {string} title - The title to display
-     * @param {boolean} canPrevious - Whether the previous button should be enabled
-     * @param {string} transporterState - The state of the transporter
-     * @param {boolean} canNext - Whether the next button should be enabled
+     * @param {object} state - The state to update the transporter elements with
      */
-    sendState(title, canPrevious, transporterState, canNext) {
+    receiveState({ title, canPrevious, transporterState, canNext }) {
         this.titleDisplay.innerText = title;
         this.previousButton.disabled = !canPrevious;
         switch (transporterState) {
@@ -63,11 +60,11 @@ export default class Transporter {
             this.nextButton = documentMake('button', { value: 'next', innerText: '->', disabled: true })
         ];
 
-        // Make the buttons send the button press to the leader through the sequencer
+        // Make the buttons send the button press to the band through the sequencer
         buttons.forEach(button => {
             const { value } = button;
             button.addEventListener('mousedown', () => {
-                this.sequencer.sendButtonPressToLeader(value);
+                this.sequencer.sendButtonPressToBand(value);
             });
         });
 
