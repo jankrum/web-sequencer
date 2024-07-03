@@ -34,7 +34,7 @@ export default class Band {
             transporterState
         };
 
-        this.mediator.sendStateToTransporter(state);
+        this.sequencer.sendStateToTransporter(state);
     }
 
     async receiveButtonPress(buttonPressed) {
@@ -65,34 +65,33 @@ export default class Band {
         this.updateTransporter();
     }
 
+    async getTextFile(path) {
+        return await fetch(this.pathToFilesystem + path).then(response => response.text());
+    }
+
     async load() {
         this.stop();
 
         const chartName = this.setlist[this.chartIndex];
-        const chartPath = `./static/charts/${chartName}.json`
+        const chartPath = `$/charts/${chartName}.json`
         const chartText = await getTextFile(chartPath);
-        const chart = JSON.parse(chartText);
-        this.currentChart = chart;
-        const scriptName = chart.scriptName;
-        const scriptPath = `./static/scripts/${scriptName}.js`;
-        this.scriptText = await getTextFile(scriptPath);
+        const chart = this.currentChart = JSON.parse(chartText);
 
-        this.runScript();
-        this.getNextEvent();
+        this.parts.forEach(part => part.load(chart));
     }
 
     async start(pathToFilesystem, controllerSectionDiv) {
         this.pathToFilesystem = pathToFilesystem;
 
         const midiAccess = await navigator.requestMIDIAccess();
+        Promise.all(this.parts.map(part => part.start(midiAccess, controllerSectionDiv)));
 
+        setlistText = await fetch(`${pathToFilesystem}setlist.text`).then(response => response.text());
+        this.setlist = setlistText.split('\n').filter(line => line.trim() !== '');
+        this.numberOfCharts = this.setlist.length;
 
+        await this.load();
 
-        this.schedulerWorker = new Worker('scheduler-worker.js');
-        this.schedulerWorker.addEventListener('message', e => {
-            if (e.data === 'tick') {
-                this.scheduler();
-            }
-        });
+        this.updateTransporter();
     }
 }

@@ -2,34 +2,20 @@ import Synthesizer from './synthesizer.js';
 import Controller from './controller.js';
 
 export default class Part {
-    static schedulerWindowSize = 100;
+    // static schedulerWindowSize = 100;
 
-    constructor(band) {
+    constructor(band, name) {
         this.band = band;
+        this.name = name;
 
-        this.id = null;
-        this.script = null;
-        this.score = null;
-
-        this.currentNotes = [];
-        this.eventBuffer = [];
-        this.nextEventTime = 0;
-        this.nextEvent = null;
+        this.chart = null;
 
         this.synthesizer = new Synthesizer(this);
         this.controller = new Controller(this);
     }
 
-    /**
-     * Receives the loading information from the leader through the sequencer
-     * @param {string} id - The id of the part in the chart
-     * @param {Function} script - The script that composes the part
-     * @param {object} score - The score
-     */
-    sendLoad(id, script, score) {
-        this.id = id;
-        this.script = script;
-        this.score = score;
+    load(chart) {
+        this.chart = chart;
     }
 
     scheduler(time) {
@@ -59,8 +45,8 @@ export default class Part {
         }
     }
 
-    async start(name, midiAccess, controllerSectionDiv) {
-        await this.synthesizer.start(midiAccess, name);
-        this.controller.start(controllerSectionDiv, name);
+    async start(midiAccess, controllerSectionDiv) {
+        await this.synthesizer.start(midiAccess, this.name);
+        this.controller.start(controllerSectionDiv, this.name);
     }
 }
