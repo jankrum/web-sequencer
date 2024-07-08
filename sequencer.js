@@ -16,14 +16,6 @@ export default class Sequencer {
     }
 
     /**
-     * Mediate button presses from the transporter to the band
-     * @param {string} buttonPressed - The button that was pressed
-     */
-    sendButtonPressToBand(buttonPressed) {
-        this.band.receiveButtonPress(buttonPressed);
-    }
-
-    /**
      * Starts the transporter and band
      * Creates elements on the page for what we need
      * Loads the first chart, which sends state to the transporter and loads scripts, which sends state to the transporter

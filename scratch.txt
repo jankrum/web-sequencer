@@ -196,3 +196,14 @@ If an object or its children have initial values that are the results of async f
 The parent gives a child a place to modify the DOM
 
 Your constructor should initialize their instance fields with what takes no knowledge
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+The Gonzales Approach
+
+List of things in project
+
+Sequencer
+    Chart
+    Part
+    Script
