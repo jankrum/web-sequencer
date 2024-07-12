@@ -1,10 +1,10 @@
 import { documentMake } from "./utility.js";
 
 export default class Transporter {
-    constructor(sequencer) {
-        this.sequencer = sequencer;
+    constructor(mediator) {
+        this.mediator = mediator;
 
-        // Referenced by start and receiveState
+        // Referenced by receiveState and start
         this.titleDisplay = null;
         this.previousButton = null;
         this.playButton = null;
@@ -15,8 +15,8 @@ export default class Transporter {
     }
 
     /**
-     * Receives the state from the band through the
-     * sequencer and updates the transporter elements
+     * Receives the state from the sequencer through the
+     * mediator and updates the transporter elements
      * @param {object} state - The state to update the transporter elements with
      */
     receiveState({ title, canPrevious, transporterState, canNext }) {
@@ -60,11 +60,11 @@ export default class Transporter {
             this.nextButton = documentMake('button', { value: 'next', innerText: '->', disabled: true })
         ];
 
-        // Make the buttons send the button press to the band through the sequencer
+        // Make the buttons send the button press to the sequencer through the mediator
         buttons.forEach(button => {
             const { value } = button;
             button.addEventListener('mousedown', () => {
-                this.sequencer.sendButtonPressToBand(value);
+                this.mediator.sendButtonPressToSequencer(value);
             });
         });
 

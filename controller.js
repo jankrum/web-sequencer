@@ -100,10 +100,20 @@ class ControllerModule {
 export default class Controller {
     static numberOfModules = 12;  // Number of modules in the controller
 
-    constructor(part) {
-        this.part = part;
-        this.modules = timesDo(Controller.numberOfModules, () => new ControllerModule(this));
+    constructor(mediator, partName) {
+        this.mediator = mediator;
+        this.partName = partName;
+        this.modules = timesDo(Controller.numberOfModules, (_, index) => new ControllerModule(this, index));
         this.numberOfAllocatedModules = 0;
+    }
+
+    /**
+     * Forwards a cc message from a controller module and sends it to the sequencer through the mediator
+     * @param {number} commandChange - The command change to send
+     * @param {number} value - The value of the command change
+    */
+    sendCommandChangeToSequencer(commandChange, value) {
+        this.mediator.sendCommandChangeToSequencer(this.partName, commandChange, value);
     }
 
     /**
