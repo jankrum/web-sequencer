@@ -61,3 +61,18 @@ export function findOrThrow(arr, compareFunc, err) {
     }
     return found;
 }
+
+export class Debouncer {
+    constructor(delay, callback) {
+        this.delay = delay;
+        this.callback = callback;
+        this.timeout = null;
+    }
+
+    debounce() {
+        if (this.timeout !== null) {
+            clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(this.callback, this.delay);
+    }
+}

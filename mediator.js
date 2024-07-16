@@ -39,8 +39,8 @@ export default class {
      * @param {number} max - The maximum value of the range
      * @param {string} suffix - The suffix for the label
      */
-    sendRangeControlToController(controllerToSendTo, prefix, min, max, suffix) {
-        this.controllers[controllerToSendTo].receiveRangeControl(prefix, min, max, suffix);
+    sendRangeControlConfigToController(controllerToSendTo, prefix, min, max, suffix) {
+        this.controllers[controllerToSendTo].receiveRangeControlConfig(prefix, min, max, suffix);
     }
 
     /**
@@ -50,8 +50,8 @@ export default class {
      * @param {string[]} options - The options
      * @param {string} suffix - The suffix for the label
      */
-    sendOptionControlToController(controllerToSendTo, prefix, options, suffix) {
-        this.controllers[controllerToSendTo].receiveOptionControl(prefix, options, suffix);
+    sendOptionControlConfigToController(controllerToSendTo, prefix, options, suffix) {
+        this.controllers[controllerToSendTo].receiveOptionControlConfig(prefix, options, suffix);
     }
 
     /**

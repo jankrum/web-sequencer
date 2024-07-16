@@ -1,16 +1,19 @@
-import { timesDo, documentMake } from './utility.js';
+import { Debouncer, timesDo, documentMake } from './utility.js';
 
 class ControllerModule {
     static numberOfTicksInInput = 128;  // Number of ticks in the input range
 
-    constructor(controller) {
+    constructor(controller, index) {
         this.controller = controller;
+
+        this.index = index;
 
         this.prefixSpan = null;
         this.valueSpan = null;
         this.suffixSpan = null;
         this.input = null;
 
+        // https://www.freecodecamp.org/news/javascript-debounce-example/
         this.computeValue = () => input.value;
     }
 
@@ -146,14 +149,10 @@ export default class Controller {
      * @param {number} min - The inclusive minimum value of the range
      * @param {number} max - The inclusive maximum value of the range
      * @param {string} suffix - The optional static suffix of the label
-     * @returns {ControllerModule} - The module that was allocated
      */
-    getRangeControl(prefix, min, max, suffix = '') {
-        const newModule = this.getUnallocatedModule();
-
-        newModule.makeRangeControl(prefix, min, max, suffix);
-
-        return newModule;
+    receiveRangeControlConfig(prefix, min, max, suffix) {
+        const newControlModule = this.getUnallocatedModule();
+        newControlModule.makeRangeControl(prefix, min, max, suffix);
     }
 
     /**
@@ -162,14 +161,10 @@ export default class Controller {
      * @param {string} prefix - The static prefix of the label
      * @param {string[]} options - The options to choose from
      * @param {string} suffix - The optional static suffix of the label
-     * @returns {ControllerModule} - The module that was allocated
      */
-    getOptionControl(prefix, options, suffix = '') {
-        const newModule = this.getUnallocatedModule();
-
-        newModule.makeOptionControl(prefix, options, suffix);
-
-        return newModule;
+    receiveOptionControlConfig(prefix, options, suffix) {
+        const newControlModule = this.getUnallocatedModule();
+        newControlModule.makeOptionControl(prefix, options, suffix);
     }
 
     /**
@@ -177,7 +172,9 @@ export default class Controller {
      * @param {HTMLDivElement} controllerSectionDiv - The div to put the controller in
      * @param {string} name - The name of the controller
      */
-    start(controllerSectionDiv, name) {
+    start(controllerSectionDiv) {
+        const name = this.partName;
+
         const checkbox = documentMake('input', { type: 'checkbox', id: `${name}-checkbox`, checked: true });
 
         checkbox.addEventListener('click', () => {
