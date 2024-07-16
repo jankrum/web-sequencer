@@ -1,28 +1,28 @@
 import { Debouncer, timesDo, documentMake } from './utility.js';
 
 class ControllerModule {
+    static commandAddressStart = 102;  // The starting cc address for the controller
     static numberOfTicksInInput = 128;  // Number of ticks in the input range
+    static debounceTimeout = 100;  // Number of milliseconds to debounce the knob turn
 
     constructor(controller, index) {
         this.controller = controller;
 
-        this.index = index;
+        this.debouncer = null;
+        this.commandAddress = index + ControllerModule.commandAddressStart;
+        this.computeValue = () => 'EMPTY';
 
         this.prefixSpan = null;
         this.valueSpan = null;
         this.suffixSpan = null;
-        this.input = null;
-
-        // https://www.freecodecamp.org/news/javascript-debounce-example/
-        this.computeValue = () => input.value;
+        this.knobInput = null;
     }
 
     /**
-     * Clears the module and resets the input and value spans
+     * Clears the module and resets the compute value and value spans
      */
     clear() {
-        this.input.oninput = null;
-        this.computeValue = () => this.input.value;
+        this.computeValue = () => '';
 
         this.prefixSpan.innerText = '';
         this.valueSpan.innerText = '';
@@ -30,21 +30,11 @@ class ControllerModule {
     }
 
     /**
-     * Gets the value of the module
-     * When the module is a range control, this is from the mapped range
-     * When the module is an option control, this is the index of the selected option
-     * @returns {number} - The value of the module
-     */
-    get value() {
-        return this.computeValue();
-    }
-
-    /**
-     * Sets the prefix and suffix of the label, sets the computed value field, and computes the initial value
+     * Sets the prefix and suffix of the label, sets the computed value field, and updates the value span
      * @param {string} prefix - The static prefix of the label
      * @param {number} min - The inclusive minimum value of the range
      * @param {number} max - The inclusive maximum value of the range
-     * @param {string} suffix - The static prefix of the label
+     * @param {string} suffix - The static suffix of the label
      */
     makeRangeControl(prefix, min, max, suffix) {
         this.prefixSpan.innerText = prefix;
@@ -57,11 +47,11 @@ class ControllerModule {
         this.computeValue = () => min + Math.round(slope * this.input.value);
 
         // Updates the value span on input and run it once to set the initial value
-        (this.input.oninput = () => this.valueSpan.innerText = this.computeValue())();
+        this.knobInput.oninput();
     }
 
     /**
-     * Sets the prefix and suffix of the label, sets the computed value field, and computes the initial value
+     * Sets the prefix and suffix of the label, sets the computed value field, and updates the value span
      * @param {*} prefix - The static prefix of the label
      * @param {*} options - The options to choose from
      * @param {*} suffix - The static suffix of the label
@@ -78,7 +68,7 @@ class ControllerModule {
         this.computeValue = () => Math.floor(this.input.value / divisionSize);
 
         // Updates the value span on input and run it once to set the initial value
-        (this.input.oninput = () => this.valueSpan.innerText = options[this.computeValue()])();
+        this.knobInput.oninput();
     }
 
     /**
@@ -86,17 +76,32 @@ class ControllerModule {
      * @param {HTMLDivElement} controllerDiv - The div to put the controller module in
      */
     start(controllerDiv) {
+        // Makes the knob input
         const max = ControllerModule.numberOfTicksInInput - 1;
         const value = Math.floor(max / 2);
+        const knobInput = this.knobInput = documentMake('input', { type: 'range', min: 0, max, value });
 
+        // Debounce the input
+        const debouncer = this.debouncer = new Debouncer(ControllerModule.debounceTimeout, () => {
+            this.valueSpan.innerText = this.computeValue();
+            this.controller.sendCommandChangeToSequencer(this.commandAddress, Number(knobInput.value));
+        });
+        const dealWithKnobInput = knobInput.oninput = () => {
+            debouncer.debounce();
+        };
+
+        // Append the controller module to the controller div
         controllerDiv.appendChild(documentMake('div', { className: 'controller-module' }, [
             documentMake('label', {}, [
                 this.prefixSpan = documentMake('span', { innerText: '%%' }),
                 this.valueSpan = documentMake('span', { innerText: 'EMPTY' }),
                 this.suffixSpan = documentMake('span', { innerText: '%%' }),
             ]),
-            this.input = documentMake('input', { type: 'range', min: 0, max, value })
+            knobInput
         ]));
+
+        // Run the input handler once to set the initial value
+        dealWithKnobInput();
     }
 }
 
@@ -177,7 +182,7 @@ export default class Controller {
 
         const checkbox = documentMake('input', { type: 'checkbox', id: `${name}-checkbox`, checked: true });
 
-        checkbox.addEventListener('click', () => {
+        checkbox.addEventListener('change', () => {
             const modules = controllerDiv.querySelectorAll('.controller-module');
             for (const module of modules) {
                 module.style.display = checkbox.checked ? 'flex' : 'none';

@@ -12,12 +12,15 @@ const transporter = new Transporter(mediator);
 const controllers = Object.fromEntries(partNames.map(partName => [partName, new Controller(mediator, partName)]));
 mediator.assign(sequencer, transporter, controllers);
 
-const pathToFilesystem = './static';
+const pathToFilesystem = './static/';
 const transporterDiv = document.querySelector('#transporter');
 const controllerSectionDiv = document.querySelector('#controllerSection');
 
 // We set these up first so that when the sequencer starts, there are things to send state to
 transporter.start(transporterDiv);
-Object.values(controllers).foreach(controller => controller.start(controllerSectionDiv));
 
-await sequencer.start(pathToFilesystem, partNames);
+console.log(mediator);
+
+Object.values(controllers).forEach(controller => controller.start(controllerSectionDiv));
+
+// await sequencer.start(pathToFilesystem, partNames);
