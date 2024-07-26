@@ -47,7 +47,7 @@ export function documentMake(tag, properties, children = []) {
 }
 
 export function timesDo(length, action) {
-    return Array.from({ length }).map(action);
+    return Array.from({ length }).map((_, index) => action(index));
 }
 
 export function capitalizeFirstLetter(text) {
@@ -76,3 +76,5 @@ export class Debouncer {
         this.timeout = setTimeout(this.callback, this.delay);
     }
 }
+
+export const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));

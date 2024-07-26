@@ -1,0 +1,79 @@
+:root {
+    --text-color: color-mix(in srgb, Canvas, CanvasText 2.5%);
+    --background-color: color-mix(in srgb, CanvasText, Canvas 15%);
+}
+
+* {
+    color: inherit;
+    background-color: inherit;
+    border-color: inherit;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    border-color: var(--text-color);
+}
+
+#controller-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    padding: 20px;
+}
+
+.controller {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 1rem;
+    margin: 1rem;
+
+    border: 1px solid;
+}
+
+.controller-module {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 2rem 6vw;
+
+    border: 1px solid;
+}
+
+label {
+    font-family: monospace;
+    font-size: x-large;
+
+    padding: 5% 10%;
+    border: 1px solid;
+    border-radius: 5px;
+
+    color: var(--background-color);
+    background-color: var(--text-color);
+}
+
+input[name="knob"] {
+    margin-top: 1rem;
+}
+
+#transporter {
+    position: sticky;
+    bottom: 0;
+
+    padding-top: 1rem;
+    text-align: center;
+
+    border-top: 1px solid;
+}
+
+#transporter>button {
+    font-size: large;
+    margin-bottom: 2rem;
+}
