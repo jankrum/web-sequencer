@@ -1,6 +1,6 @@
 // https://g200kg.github.io/input-knobs/
 
-import { sleep } from "./utility.js";
+import { sleep, documentMake, timesDo } from "./utility.js";
 
 export default async () => {
     let options = window.inputKnobsOptions || {};
@@ -44,12 +44,31 @@ input[type=range].input-knob::-moz-range-track,input[type=range].input-slider::-
 }`;
     document.head.appendChild(styles);
 
+    function makeKnobFramesB(frameCount, foregroundColor, backgroundColor) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        svg.setAttribute("width", "64");
+        svg.setAttribute("height", `${frameCount * 64}`);
+        svg.setAttribute("viewBox", "0 0 64 ${frameCount * 64}");
+        svg.setAttribute("preserveAspectRatio", "none");
+
+        //         let r =
+        //             `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="${frameCount * 64}" viewBox="0 0 64 ${frameCount * 64}" preserveAspectRatio="none">
+        // <defs><g id="K"><circle cx="32" cy="32" r="30" fill="${backgroundColor}"/>
+        // <line x1="32" y1="28" x2="32" y2="7" stroke-linecap="round" stroke-width="6" stroke="${foregroundColor}"/></g></defs>
+        // <use xlink:href="#K" transform="rotate(-135,32,32)"/>`;
+        //         for (let i = 1; i < frameCount; ++i) {
+        //             r += `<use xlink:href="#K" transform="translate(0,${64 * i}) rotate(${-135 + 270 * i / frameCount},32,32)"/>`;
+        //         }
+        //         return r + "</svg>";
+    }
+
     function makeKnobFrames(frameCount, foregroundColor, backgroundColor) {
         let r =
             `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="${frameCount * 64}" viewBox="0 0 64 ${frameCount * 64}" preserveAspectRatio="none">
-<defs><g id="K"><circle cx="32" cy="32" r="30" fill="${backgroundColor}"/>
-<line x1="32" y1="28" x2="32" y2="7" stroke-linecap="round" stroke-width="6" stroke="${foregroundColor}"/></g></defs>
-<use xlink:href="#K" transform="rotate(-135,32,32)"/>`;
+    <defs><g id="K"><circle cx="32" cy="32" r="30" fill="${backgroundColor}"/>
+    <line x1="32" y1="28" x2="32" y2="7" stroke-linecap="round" stroke-width="6" stroke="${foregroundColor}"/></g></defs>
+    <use xlink:href="#K" transform="rotate(-135,32,32)"/>`;
         for (let i = 1; i < frameCount; ++i) {
             r += `<use xlink:href="#K" transform="translate(0,${64 * i}) rotate(${-135 + 270 * i / frameCount},32,32)"/>`;
         }
