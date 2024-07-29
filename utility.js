@@ -39,9 +39,11 @@ export function dumbStringToState(dumbString) {
     return { canPrevious, canNext, state, title };
 }
 
-export function documentMake(tag, properties = {}, ...children) {
+export function dm(tag, attributes = {}, ...children) {
     const element = document.createElement(tag);
-    Object.assign(element, properties);
+    for (const attribute in attributes) {
+        element.setAttribute(attribute, attributes[attribute]);
+    }
     element.append(...children);
     return element;
 }

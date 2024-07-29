@@ -1,6 +1,6 @@
 // https://g200kg.github.io/input-knobs/
 
-import { sleep, documentMake, timesDo } from "./utility.js";
+import { sleep, dm, timesDo } from "./utility.js";
 
 export default async () => {
     let options = window.inputKnobsOptions || {};
@@ -49,7 +49,7 @@ input[type=range].input-knob::-moz-range-track,input[type=range].input-slider::-
         svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
         svg.setAttribute("width", "64");
         svg.setAttribute("height", `${frameCount * 64}`);
-        svg.setAttribute("viewBox", "0 0 64 ${frameCount * 64}");
+        svg.setAttribute("viewBox", `0 0 64 ${frameCount * 64}`);
         svg.setAttribute("preserveAspectRatio", "none");
 
         //         let r =
