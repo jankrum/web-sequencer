@@ -40,11 +40,26 @@ export function dumbStringToState(dumbString) {
 }
 
 export function dm(tag, attributes = {}, ...children) {
-    const element = document.createElement(tag);
-    for (const attribute in attributes) {
-        element.setAttribute(attribute, attributes[attribute]);
+    let element;
+
+    if (tag.includes('>')) {
+        const [namespace, namespaceTag] = tag.split('>');
+        element = document.createElementNS(namespace, namespaceTag);
+    } else {
+        element = document.createElement(tag);
     }
+
+    for (const attribute in attributes) {
+        if (attribute.includes('>')) {
+            const [namespace, namespaceAttribute] = attribute.split('>');
+            element.setAttributeNS(namespace, namespaceAttribute, attributes[attribute]);
+        } else {
+            element.setAttribute(attribute, attributes[attribute]);
+        }
+    }
+
     element.append(...children);
+
     return element;
 }
 

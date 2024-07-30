@@ -1,220 +1,155 @@
 // https://g200kg.github.io/input-knobs/
 
-import { sleep, dm, timesDo } from "./utility.js";
+import { dm, timesDo } from "./utility.js";
 
-export default async () => {
-    let options = window.inputKnobsOptions || {};
-    options.knobWidth = 64;
-    options.knobHeight = 64;
-    const firstModule = document.querySelector('div.controller-module');
-    const firstModuleStyle = getComputedStyle(firstModule);
-    options.tickColor = firstModuleStyle.backgroundColor;
-    options.knobColor = firstModuleStyle.color;
-    options.knobMode = "linear";
-    let styles = document.createElement("style");
-    styles.innerHTML =
-        `input[type=range].input-knob,input[type=range].input-slider{
-  -webkit-appearance:none;
-  -moz-appearance:none;
-  border:none;
-  box-sizing:border-box;
-  overflow:hidden;
-  background-repeat:no-repeat;
-  background-size:100% 100%;
-  background-position:0px 0%;
-  background-color:transparent;
-  touch-action:none;
-}
-input[type=range].input-knob{
-  width:${options.knobWidth}px; height:${options.knobHeight}px;
-}
-input[type=range].input-knob::-webkit-slider-thumb,input[type=range].input-slider::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  opacity:0;
-}
-input[type=range].input-knob::-moz-range-thumb,input[type=range].input-slider::-moz-range-thumb{
-  -moz-appearance:none;
-  height:0;
-  border:none;
-}
-input[type=range].input-knob::-moz-range-track,input[type=range].input-slider::-moz-range-track{
-  -moz-appearance:none;
-  height:0;
-  border:none;
-}`;
-    document.head.appendChild(styles);
+const bodyStyle = getComputedStyle(document.body);
+const tickColor = bodyStyle.backgroundColor;
+const knobColor = bodyStyle.color;
+const knobSize = 64; // If you change this, you must also change the CSS
+const sensitivity = 500;
+const sprites = 100;
+const frameCount = sprites + 1;
 
-    function makeKnobFramesB(frameCount, foregroundColor, backgroundColor) {
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-        svg.setAttribute("width", "64");
-        svg.setAttribute("height", `${frameCount * 64}`);
-        svg.setAttribute("viewBox", `0 0 64 ${frameCount * 64}`);
-        svg.setAttribute("preserveAspectRatio", "none");
+const knobFrames = (() => {
+    const svgNamespace = 'http://www.w3.org/2000/svg';
 
-        //         let r =
-        //             `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="${frameCount * 64}" viewBox="0 0 64 ${frameCount * 64}" preserveAspectRatio="none">
-        // <defs><g id="K"><circle cx="32" cy="32" r="30" fill="${backgroundColor}"/>
-        // <line x1="32" y1="28" x2="32" y2="7" stroke-linecap="round" stroke-width="6" stroke="${foregroundColor}"/></g></defs>
-        // <use xlink:href="#K" transform="rotate(-135,32,32)"/>`;
-        //         for (let i = 1; i < frameCount; ++i) {
-        //             r += `<use xlink:href="#K" transform="translate(0,${64 * i}) rotate(${-135 + 270 * i / frameCount},32,32)"/>`;
-        //         }
-        //         return r + "</svg>";
-    }
+    const circle = dm(`${svgNamespace}>circle`, {
+        cx: "32",
+        cy: "32",
+        r: "30",
+        fill: knobColor
+    });
 
-    function makeKnobFrames(frameCount, foregroundColor, backgroundColor) {
-        let r =
-            `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="${frameCount * 64}" viewBox="0 0 64 ${frameCount * 64}" preserveAspectRatio="none">
-    <defs><g id="K"><circle cx="32" cy="32" r="30" fill="${backgroundColor}"/>
-    <line x1="32" y1="28" x2="32" y2="7" stroke-linecap="round" stroke-width="6" stroke="${foregroundColor}"/></g></defs>
-    <use xlink:href="#K" transform="rotate(-135,32,32)"/>`;
-        for (let i = 1; i < frameCount; ++i) {
-            r += `<use xlink:href="#K" transform="translate(0,${64 * i}) rotate(${-135 + 270 * i / frameCount},32,32)"/>`;
-        }
-        return r + "</svg>";
-    }
+    const line = dm(`${svgNamespace}>line`, {
+        x1: "32",
+        y1: "28",
+        x2: "32",
+        y2: "7",
+        "stroke-linecap": "round",
+        "stroke-width": "6",
+        stroke: tickColor
+    });
 
-    function initializeKnob(knobToInitialize) {
-        let width, height, diameter, foregroundColor, backgroundColor;
+    const g = dm(`${svgNamespace}>g`, { id: "K" }, circle, line);
 
-        // If the knob has already been initialized, redraw it and return
-        if (knobToInitialize.inputKnobs) {
-            knobToInitialize.redraw();
-            return;
+    const defs = dm(`${svgNamespace}>defs`, {}, g);
+
+    const uses = timesDo(frameCount, (i) => {
+        const use = dm(`${svgNamespace}>use`, {
+            "xlink:href": "#K",
+            transform: `translate(0,${knobSize * i}) rotate(${-135 + 270 * i / frameCount},32,32)`
+        });
+        return use;
+    });
+
+    const svg = dm(`${svgNamespace}>svg`, {
+        xmlns: 'http://www.w3.org/2000/svg',
+        'http://www.w3.org/2000/xmlns/>xmlns:xlink': 'http://www.w3.org/1999/xlink',
+        width: `${knobSize}`,
+        height: `${frameCount * knobSize}`,
+        viewBox: `0 0 ${knobSize} ${frameCount * knobSize}`,
+        preserveAspectRatio: 'none'
+    }, defs, ...uses);
+
+    return svg.outerHTML;
+})();
+
+
+export default () => {
+    function initializeRange(inputRange) {
+        function redraw() {
+            let v = (inputRange.value - ir.valrange.min) / (ir.valrange.max - ir.valrange.min);
+            inputRange.style.backgroundPosition = "0px " + (-((v * sprites) | 0) * knobSize) + "px";
+            ir.valueold = inputRange.value;
         }
 
-        let ik = knobToInitialize.inputKnobs = {};
-        knobToInitialize.refresh = () => {
-            diameter = +knobToInitialize.getAttribute("data-diameter");
-            let st = document.defaultView.getComputedStyle(knobToInitialize, null);
-            width = parseFloat(knobToInitialize.getAttribute("data-width") || diameter || st.width);
-            height = parseFloat(knobToInitialize.getAttribute("data-height") || diameter || st.height);
-            backgroundColor = knobToInitialize.getAttribute("data-knobColor") || options.knobColor;
-            foregroundColor = knobToInitialize.getAttribute("data-tickColor") || options.tickColor;
-            ik.sensex = ik.sensey = 200;
-            ik.itype = "k";
-            knobToInitialize.style.width = width + "px";
-            knobToInitialize.style.height = height + "px";
-            ik.frameheight = height;
-            let svg = makeKnobFrames(101, foregroundColor, backgroundColor);
-            ik.sprites = 100;
-            knobToInitialize.style.backgroundImage = "url(data:image/svg+xml;base64," + btoa(svg) + ")";
-            knobToInitialize.style.backgroundSize = `100% ${(ik.sprites + 1) * 100}%`;
-            ik.valrange = { min: +knobToInitialize.min, max: (knobToInitialize.max == "") ? 100 : +knobToInitialize.max, step: (knobToInitialize.step == "") ? 1 : +knobToInitialize.step };
-            knobToInitialize.redraw(true);
-        };
-        knobToInitialize.setValue = (v) => {
-            v = (Math.round((v - ik.valrange.min) / ik.valrange.step)) * ik.valrange.step + ik.valrange.min;
-            if (v < ik.valrange.min) v = ik.valrange.min;
-            if (v > ik.valrange.max) v = ik.valrange.max;
-            knobToInitialize.value = v;
-            if (knobToInitialize.value != ik.oldvalue) {
-                knobToInitialize.setAttribute("value", knobToInitialize.value);
-                knobToInitialize.redraw();
+        function checkThenRedraw() {
+            if (ir.valueold != inputRange.value) {
+                redraw();
+            }
+        }
+
+        let width, height;
+
+        let ir = inputRange.inputKnobs = {};
+
+        inputRange.setValue = (v) => {
+            v = (Math.round((v - ir.valrange.min) / ir.valrange.step)) * ir.valrange.step + ir.valrange.min;
+            if (v < ir.valrange.min) v = ir.valrange.min;
+            if (v > ir.valrange.max) v = ir.valrange.max;
+            inputRange.value = v;
+            if (inputRange.value !== ir.oldvalue) {
+                inputRange.setAttribute("value", inputRange.value);
+                checkThenRedraw();
                 let event = document.createEvent("HTMLEvents");
                 event.initEvent("input", false, true);
-                knobToInitialize.dispatchEvent(event);
-                ik.oldvalue = knobToInitialize.value;
+                inputRange.dispatchEvent(event);
+                ir.oldvalue = inputRange.value;
             }
         };
-        ik.pointerdown = (ev) => {
-            knobToInitialize.focus();
+
+        ir.pointerdown = (ev) => {
+            inputRange.focus();
             const evorg = ev;
             if (ev.touches)
                 ev = ev.touches[0];
-            let rc = knobToInitialize.getBoundingClientRect();
+            let rc = inputRange.getBoundingClientRect();
             let cx = (rc.left + rc.right) * 0.5, cy = (rc.top + rc.bottom) * 0.5;
-            let da = Math.atan2(ev.clientX - cx, cy - ev.clientY);
-            if (ik.itype == "k" && options.knobMode == "circularabs") {
-                dv = ik.valrange.min + (da / Math.PI * 0.75 + 0.5) * (ik.valrange.max - ik.valrange.min);
-                knobToInitialize.setValue(dv);
-            }
-            ik.dragfrom = { x: ev.clientX, y: ev.clientY, a: Math.atan2(ev.clientX - cx, cy - ev.clientY), v: +knobToInitialize.value };
-            document.addEventListener("mousemove", ik.pointermove);
-            document.addEventListener("mouseup", ik.pointerup);
-            document.addEventListener("touchmove", ik.pointermove);
-            document.addEventListener("touchend", ik.pointerup);
-            document.addEventListener("touchcancel", ik.pointerup);
+
+            ir.dragfrom = { x: ev.clientX, y: ev.clientY, a: Math.atan2(ev.clientX - cx, cy - ev.clientY), v: +inputRange.value };
+            document.addEventListener("mousemove", ir.pointermove);
+            document.addEventListener("mouseup", ir.pointerup);
+            document.addEventListener("touchmove", ir.pointermove);
+            document.addEventListener("touchend", ir.pointerup);
+            document.addEventListener("touchcancel", ir.pointerup);
             evorg.preventDefault();
             evorg.stopPropagation();
         };
-        ik.pointermove = (ev) => {
+
+        ir.pointermove = (ev) => {
             let dv;
-            let rc = knobToInitialize.getBoundingClientRect();
-            let cx = (rc.left + rc.right) * 0.5, cy = (rc.top + rc.bottom) * 0.5;
             if (ev.touches)
                 ev = ev.touches[0];
-            let dx = ev.clientX - ik.dragfrom.x, dy = ev.clientY - ik.dragfrom.y;
-            let da = Math.atan2(ev.clientX - cx, cy - ev.clientY);
-            switch (ik.itype) {
-                case "k":
-                    switch (options.knobMode) {
-                        case "linear":
-                            dv = (dx / ik.sensex - dy / ik.sensey) * (ik.valrange.max - ik.valrange.min);
-                            if (ev.shiftKey)
-                                dv *= 0.2;
-                            knobToInitialize.setValue(ik.dragfrom.v + dv);
-                            break;
-                        case "circularabs":
-                            if (!ev.shiftKey) {
-                                dv = ik.valrange.min + (da / Math.PI * 0.75 + 0.5) * (ik.valrange.max - ik.valrange.min);
-                                knobToInitialize.setValue(dv);
-                                break;
-                            }
-                        case "circularrel":
-                            if (da > ik.dragfrom.a + Math.PI) da -= Math.PI * 2;
-                            if (da < ik.dragfrom.a - Math.PI) da += Math.PI * 2;
-                            da -= ik.dragfrom.a;
-                            dv = da / Math.PI / 1.5 * (ik.valrange.max - ik.valrange.min);
-                            if (ev.shiftKey)
-                                dv *= 0.2;
-                            knobToInitialize.setValue(ik.dragfrom.v + dv);
-                    }
-                    break;
-            }
+            let dx = ev.clientX - ir.dragfrom.x, dy = ev.clientY - ir.dragfrom.y;
+
+            dv = (dx / sensitivity - dy / sensitivity) * (ir.valrange.max - ir.valrange.min);
+            if (ev.shiftKey)
+                dv *= 0.2;
+            inputRange.setValue(ir.dragfrom.v + dv);
         };
-        ik.pointerup = () => {
-            document.removeEventListener("mousemove", ik.pointermove);
-            document.removeEventListener("touchmove", ik.pointermove);
-            document.removeEventListener("mouseup", ik.pointerup);
-            document.removeEventListener("touchend", ik.pointerup);
-            document.removeEventListener("touchcancel", ik.pointerup);
+
+        ir.pointerup = () => {
+            document.removeEventListener("mousemove", ir.pointermove);
+            document.removeEventListener("touchmove", ir.pointermove);
+            document.removeEventListener("mouseup", ir.pointerup);
+            document.removeEventListener("touchend", ir.pointerup);
+            document.removeEventListener("touchcancel", ir.pointerup);
             let event = document.createEvent("HTMLEvents");
             event.initEvent("change", false, true);
-            knobToInitialize.dispatchEvent(event);
+            inputRange.dispatchEvent(event);
         };
-        ik.keydown = () => {
-            knobToInitialize.redraw();
+
+        ir.keydown = () => {
+            checkThenRedraw();
         };
-        knobToInitialize.redraw = (f) => {
-            if (f || ik.valueold != knobToInitialize.value) {
-                let v = (knobToInitialize.value - ik.valrange.min) / (ik.valrange.max - ik.valrange.min);
-                if (ik.sprites >= 1)
-                    knobToInitialize.style.backgroundPosition = "0px " + (-((v * ik.sprites) | 0) * ik.frameheight) + "px";
-                else {
-                    knobToInitialize.style.transform = "rotate(" + (270 * v - 135) + "deg)";
-                }
-                ik.valueold = knobToInitialize.value;
-            }
-        };
-        knobToInitialize.refresh();
-        knobToInitialize.redraw(true);
-        knobToInitialize.addEventListener("keydown", ik.keydown);
-        knobToInitialize.addEventListener("mousedown", ik.pointerdown);
-        knobToInitialize.addEventListener("touchstart", ik.pointerdown);
+
+        // Making it appear
+        let svg = knobFrames;
+        ir.sprites = 100;
+        inputRange.style.backgroundImage = "url(data:image/svg+xml;base64," + btoa(svg) + ")";
+        inputRange.style.backgroundSize = `100% ${(sprites + 1) * 100}%`;
+        ir.valrange = { min: +inputRange.min, max: (inputRange.max == "") ? 100 : +inputRange.max, step: (inputRange.step == "") ? 1 : +inputRange.step };
+        redraw();
+
+        inputRange.addEventListener("keydown", ir.keydown);
+        inputRange.addEventListener("mousedown", ir.pointerdown);
+        inputRange.addEventListener("touchstart", ir.pointerdown);
     }
 
-    function refreshQueue() {
-        processingQueue = Array.from(document.querySelectorAll("input.input-knob,input.input-slider"));
+    // Initialize all knobs
+    for (let range of Array.from(document.querySelectorAll("input.input-knob,input.input-slider"))) {
+        initializeRange(range);
     }
 
-    let processingQueue = [];
-
-    refreshQueue();
-
-    for (let knob of processingQueue) {
-        initializeKnob(knob);
-        await sleep(1);
-    }
+    // console.log(makeKnobFrames(101, 'red', 'blue'));
 };
