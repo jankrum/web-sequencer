@@ -25,12 +25,6 @@ function makeControllerModule(index) {
 
     updateValue();
 
-    // const svgNamespace = 'http://www.w3.org/2000/svg';
-    // const svg = document.createElementNS(svgNamespace, 'svg');
-    // svg.setAttribute('viewBox', `0 0 64 ${101 * 64}`);
-    // svg.setAttribute('preserveAspectRatio', 'none');
-    // const g = document.createElementNS(svgNamespace, 'g');
-
     const moduleDiv = dm('div', { class: 'controller-module' }, label, inputRange);
 
     return moduleDiv;
@@ -38,12 +32,19 @@ function makeControllerModule(index) {
 
 function makeController(part) {
     const title = part.toUpperCase();
+
     const controllerModules = timesDo(modulesPerController, makeControllerModule);
     const id = `${part.toLowerCase()}-controller`;
 
     const titleHeader = dm('h3', {}, title);
 
-    const controllerDiv = dm('div', { class: 'controller', id }, titleHeader, ...controllerModules);
+    const controllerRowDiv = dm('div', { class: 'controller-row' }, ...controllerModules);
+
+    const controllerDiv = dm('div', { class: 'controller', id }, titleHeader, controllerRowDiv);
+
+    titleHeader.addEventListener('mousedown', () => {
+        controllerRowDiv.hidden = !controllerRowDiv.hidden;
+    });
 
     return controllerDiv;
 }
@@ -57,7 +58,19 @@ function makeControllerSection() {
 }
 
 function makeTransporter() {
-    const transporterDiv = dm('div', { id: 'transporter' });
+    const title = dm('h2', {}, '%%EMPTY%%')
+
+    const buttonTexts = [
+        '⏮', //&#x23EE
+        '⏵', //&#x23F5
+        '⏸', //&#x23F8
+        '⏹', //&#x23F9
+        '⏭'//&#x23ED
+    ];
+
+    const buttons = buttonTexts.map(buttonText => dm('button', {}, buttonText));
+
+    const transporterDiv = dm('div', { id: 'transporter' }, title, ...buttons);
 
     return transporterDiv;
 }
@@ -66,18 +79,10 @@ addEventListener('load', () => {
     const body = document.querySelector('body');
 
     const controllerSection = makeControllerSection();
-    // const transporter = makeTransporter();
+    const transporter = makeTransporter();
 
     body.append(controllerSection);
-    // body.append(transporter);
+    body.append(transporter);
 
     renderKnobs();
 });
-
-// const svgNamespace = 'http://www.w3.org/2000/svg';
-// const svg = document.createElementNS(svgNamespace, 'svg');
-// svg.setAttribute('viewBox', '0 0 100 100');
-// const path = document.createElementNS(svgNamespace, 'path');
-// path.setAttribute('d', 'M 50 0 L 60 10 L 60 90 L 50 100 L 40 90 L 40 10 Z');
-// svg.append(path);
-// document.body.append(svg);
